@@ -1,0 +1,98 @@
+plugins {
+    id 'com.android.library'
+    id 'maven-publish'
+}
+
+group = "com.educards"
+
+def artifact_version_code = 1
+def artifact_version_name = "0.0.1"
+
+android {
+    compileSdk 33
+
+    defaultConfig {
+        minSdk 21
+        targetSdk 33
+        versionCode artifact_version_code
+        versionName artifact_version_name
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+        targetSdkVersion 33
+        minSdkVersion 21
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    compileSdkVersion 33
+    buildToolsVersion "33.0.2"
+}
+
+// Because the components are created only during the afterEvaluate phase, we must
+// configure publications using the afterEvaluate() lifecycle method.
+// src: https://developer.android.com/studio/build/maven-publish-plugin#groovy
+afterEvaluate {
+    publishing {
+        repositories {
+            maven {
+                name = "OSSRH"
+                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                credentials {
+                    username = System.getenv("MAVEN_USERNAME")
+                    password = System.getenv("MAVEN_PASSWORD")
+                }
+            }
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/$github_owner/$github_repository")
+                credentials {
+                    username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_USERNAME")
+                    password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+                }
+            }
+        }
+        publications {
+            release(MavenPublication) {
+                from components.release
+
+                //groupId = '...'       // already set implicitly
+                //artifactId = '...'    // already set implicitly
+                version = artifact_version_name
+            }
+        }
+    }
+}
+
+configurations {
+
+    all {
+
+        /**
+         * This exclusion solves the following Gradle build problem:
+         *   'commons-logging'/'httpclient' defines classes that conflict with classes now provided by Android.
+         *   Solutions include finding newer versions or alternative libraries that don't have the same problem
+         *   (for example, for httpclient use HttpUrlConnection or okhttp instead),
+         *   or repackaging the library using something like jarjar.
+         */
+        exclude module: 'httpclient'
+        exclude module: 'commons-logging'
+
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // Dialogflow v2
+    implementation 'com.google.cloud:google-cloud-dialogflow:3.3.0'
+    implementation 'io.grpc:grpc-okhttp:1.39.0'
+}
