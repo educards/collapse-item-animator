@@ -1,3 +1,3 @@
 # Collapse Item Animator
 
-Custom RecyclerView animator based of DefaultItemAnimator.
+Custom RecyclerView animator based on DefaultItemAnimator.
