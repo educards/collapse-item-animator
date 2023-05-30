@@ -37,6 +37,10 @@ android {
 }
 
 dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation project(':collapse-item-animator')
+    
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'com.google.android.material:material:1.6.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
