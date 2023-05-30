@@ -7,11 +7,14 @@ Custom [RecyclerView.ItemAnimator](https://developer.android.com/reference/andro
 (For working example see [collapse-item-animator-demo](https://github.com/educards/collapse-item-animator/tree/main/collapse-item-animator-demo).)
 
 * Make your `Adapter` extend `CollapseAnimAdapter`.
-*
-  As part of your data setting procedure invoke one of the [CollapseAnimAdapter.setAnimInfo(...)](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseAnimAdapter.kt) methods.
+
+* As part of your data setting procedure invoke one of the [CollapseAnimAdapter.setAnimInfo(...)](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseAnimAdapter.kt) methods.
   This tells the [animator](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseItemAnimator.kt),
   whether your current data represent expanded or collapsed target state of the collapse/expand animation.
   * Example: [DemoAdapter.setData(...)](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator-demo/src/main/java/com/educards/collapseitemanimator/demo/DemoAdapter.kt)
+
+* In the aforementioned anim metadata specify the target state of the collapse animation:
+  * See: [CollapseAnimAdapter.CollapseAnimInfo](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseAnimAdapter.kt)
 
 * Define a `View` which will be used as a list item by `onCreateViewHolder(...)` and `onBindViewHolder(...)` methods of your `Adapter`.
   Your `View` needs to implement [CollapseAnimView](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseAnimView.kt) interface and invoke its default methods correctly.
@@ -23,6 +26,7 @@ Custom [RecyclerView.ItemAnimator](https://developer.android.com/reference/andro
 * Define a background color for your list item `View`
   (use `transparent` if no custom color is desired - `android:background="@android:color/transparent"`).
   * Issue detail: https://github.com/educards/collapse-item-animator/issues/1
+
   ```
         <com.educards.collapseitemanimator.CollapseAnimFrameLayout
             android:id="@+id/item"
@@ -35,7 +39,7 @@ Custom [RecyclerView.ItemAnimator](https://developer.android.com/reference/andro
         </com.educards.collapseitemanimator.CollapseAnimFrameLayout>
   ```
 
-* `RecyclerView`'s `clipChildren` attribute
+* Unset `clipChildren` of your `RecyclerView`.
   ```
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
