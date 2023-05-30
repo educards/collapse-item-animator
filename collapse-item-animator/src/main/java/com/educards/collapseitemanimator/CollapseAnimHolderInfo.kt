@@ -2,7 +2,6 @@ package com.educards.collapseitemanimator
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo
 
