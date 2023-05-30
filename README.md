@@ -10,11 +10,11 @@ Custom [RecyclerView.ItemAnimator](https://developer.android.com/reference/andro
 
 * As part of your data setting procedure invoke one of the [CollapseAnimAdapter.setAnimInfo(...)](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseAnimAdapter.kt) methods.
   This tells the [animator](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseItemAnimator.kt),
-  whether your current data represent expanded or collapsed target state of the collapse/expand animation.
-  * Example: [DemoAdapter.setData(...)](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator-demo/src/main/java/com/educards/collapseitemanimator/demo/DemoAdapter.kt)
+  whether your current data represent expanded or collapsed target state of the collapse/expand animation
+  (example: [DemoAdapter.setData(...)](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator-demo/src/main/java/com/educards/collapseitemanimator/demo/DemoAdapter.kt)).
 
-* In the aforementioned anim metadata specify the target state of the collapse animation:
-  * See: [CollapseAnimAdapter.CollapseAnimInfo](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseAnimAdapter.kt)
+* In the aforementioned anim metadata specify the target state of the collapse animation
+  ([CollapseAnimAdapter.CollapseAnimInfo](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseAnimAdapter.kt)).
 
 * Define a `View` which will be used as a list item by `onCreateViewHolder(...)` and `onBindViewHolder(...)` methods of your `Adapter`.
   Your `View` needs to implement [CollapseAnimView](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseAnimView.kt) interface and invoke its default methods correctly.
