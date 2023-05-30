@@ -24,8 +24,8 @@ Custom [RecyclerView.ItemAnimator](https://developer.android.com/reference/andro
   * Or create custom implementation of `CollapseAnimView` if `FrameLayout` does not suit you.
 
 * Define a background color for your list item `View`
-  (use `transparent` if no custom color is desired - `android:background="@android:color/transparent"`).
-  * Issue detail: https://github.com/educards/collapse-item-animator/issues/1
+  (use `transparent` if no custom color is desired - `android:background="@android:color/transparent"`,
+  for details see issue https://github.com/educards/collapse-item-animator/issues/1).
 
   ```
         <com.educards.collapseitemanimator.CollapseAnimFrameLayout
