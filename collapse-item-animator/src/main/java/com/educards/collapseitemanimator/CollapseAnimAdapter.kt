@@ -12,16 +12,16 @@ abstract class CollapseAnimAdapter : RecyclerView.Adapter<CollapseAnimAdapter.Co
         setupStableIds()
     }
 
-    private var animInfoMap: Map<Int, CollapseAnimInfo>? = null
+    private var collapseAnimInfoMap: Map<Int, CollapseAnimInfo>? = null
 
     open class CollapseAnimViewHolder(
         val rootView: CollapseAnimFrameLayout,
         val textView: TextView,
     ) : RecyclerView.ViewHolder(rootView) {
 
-        var animInfo: CollapseAnimInfo? = null
+        var collapseAnimInfo: CollapseAnimInfo? = null
 
-        fun isCustomAnimated() = animInfo != null
+        fun isCustomAnimated() = collapseAnimInfo != null
 
     }
 
@@ -32,24 +32,21 @@ abstract class CollapseAnimAdapter : RecyclerView.Adapter<CollapseAnimAdapter.Co
     override fun onBindViewHolder(holder: CollapseAnimViewHolder, position: Int) {
 
         // TODO Documentation
-        holder.animInfo = null
-        animInfoMap?.let { animInfoMap ->
-            if (animInfoMap.contains(position)) {
-                holder.animInfo = animInfoMap[position]
-            }
-        }
+        holder.collapseAnimInfo = getCollapseAnimInfo(position)
     }
+
+    fun getCollapseAnimInfo(position: Int) = collapseAnimInfoMap?.get(position)
 
     override fun getItemId(position: Int): Long {
         return position.toLong()
     }
 
     protected fun setAnimInfo(animInfoList: List<CollapseAnimInfo>?) {
-        this.animInfoMap = animInfoList?.associate { Pair(it.itemIndex, it) }
+        this.collapseAnimInfoMap = animInfoList?.associate { Pair(it.itemIndex, it) }
     }
 
     protected fun setAnimInfo(animInfoMap: Map<Int, CollapseAnimInfo>?) {
-        this.animInfoMap = animInfoMap
+        this.collapseAnimInfoMap = animInfoMap
     }
 
     data class CollapseAnimInfo(

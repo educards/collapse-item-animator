@@ -23,7 +23,7 @@ class CollapseAnimHolderInfo : ItemHolderInfo() {
     override fun setFrom(holder: RecyclerView.ViewHolder): ItemHolderInfo {
         if (holder is CollapseAnimAdapter.CollapseAnimViewHolder) {
 
-            animInfo = holder.animInfo
+            animInfo = holder.collapseAnimInfo
 
             animInfoIfExpanded()?.let {
 
