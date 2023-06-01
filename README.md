@@ -14,7 +14,7 @@ Custom [RecyclerView.ItemAnimator](https://developer.android.com/reference/andro
 * As part of your data setting procedure:
   1. Invoke one of the [CollapseAnimAdapter.setCollapseAnimInfo(...)](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseAnimAdapter.kt) methods.
      This tells the [animator](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseItemAnimator.kt),
-     whether your current data represent expanded or collapsed target state of the animation
+     details about the animation such as whether your current data are in expanded or collapsed target state of the animation.
      (example: [DemoAdapter.setData(...)](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator-demo/src/main/java/com/educards/collapseitemanimator/demo/DemoAdapter.kt)).
   2. Invoke one of `Adapter.notify*Changed()` method for those items (positions/indices)
      which were also enumerated in `animInfo` metadata of the preceding `setCollapseAnimInfo(animInfo)` call.
