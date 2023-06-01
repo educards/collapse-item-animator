@@ -11,10 +11,57 @@ Custom [RecyclerView.ItemAnimator](https://developer.android.com/reference/andro
 
 * Make your `Adapter` extend `CollapseAnimAdapter`.
 
-* As part of your data setting procedure invoke one of the [CollapseAnimAdapter.setAnimInfo(...)](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseAnimAdapter.kt) methods.
-  This tells the [animator](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseItemAnimator.kt),
-  whether your current data represent expanded or collapsed target state of the collapse/expand animation
-  (example: [DemoAdapter.setData(...)](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator-demo/src/main/java/com/educards/collapseitemanimator/demo/DemoAdapter.kt)).
+* As part of your data setting procedure:
+  1. Invoke one of the [CollapseAnimAdapter.setCollapseAnimInfo(...)](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseAnimAdapter.kt) methods.
+     This tells the [animator](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseItemAnimator.kt),
+     whether your current data represent expanded or collapsed target state of the animation
+     (example: [DemoAdapter.setData(...)](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator-demo/src/main/java/com/educards/collapseitemanimator/demo/DemoAdapter.kt)).
+  2. Invoke one of `Adapter.notify*Changed()` method for those items (positions/indices)
+     which were also enumerated in `animInfo` metadata of the preceding `setCollapseAnimInfo(animInfo)` call.
+
+     ```
+     // Example:
+
+     class MyActivity ... {
+
+         override fun onCreate(savedInstanceState: Bundle?) {
+
+             // Perform the collapse animation of item #4.
+             // Collapse to the first line while keeping 2 lines visible.
+             val animInfoList = listOf(CollapseAnimInfo(
+                     expanded = false,
+                     itemIndex = 3,
+                     firstLineIndex = 0,
+                     linesCount = 2
+                 )
+             )
+
+             val myData = ... // acquire adapter data
+
+             // Update adapter data and perform collapse animation
+             // for dedicated items.
+             myAdapter.setData(myData, animInfo)
+         }
+
+     }
+
+     class MyAdapter : CollapseAnimAdapter() {
+
+         fun setData(data: List<...>, animInfoList: List<CollapseAnimInfo>?) {
+             this.data = data
+             setCollapseAnimInfo(animInfoList)
+
+             // Correctly notify according to changes in your data.
+             // Calling one of notifyItem*Changed(*) methods is required
+             // for those items which are listed in `animInfoList`.
+             // Otherwise the collapse animation might not be performed correctly.
+             // For this task consider using [DiffUtil](https://developer.android.com/reference/androidx/recyclerview/widget/DiffUtil).
+
+             TODO notify*(*)
+         }
+
+     }
+     ```
 
 * In the aforementioned anim metadata specify the target state of the collapse animation
   ([CollapseAnimAdapter.CollapseAnimInfo](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/CollapseAnimAdapter.kt)).
