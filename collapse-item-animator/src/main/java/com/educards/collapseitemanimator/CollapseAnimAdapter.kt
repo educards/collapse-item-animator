@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 /**
  * @see setAnimInfo
  */
-abstract class CollapseAnimAdapter : RecyclerView.Adapter<CollapseAnimAdapter.CollapseAnimViewHolder>() {
+abstract class CollapseAnimAdapter : RecyclerView.Adapter<CollapseAnimAdapter.ViewHolder>() {
 
     init {
         setupStableIds()
@@ -14,14 +14,15 @@ abstract class CollapseAnimAdapter : RecyclerView.Adapter<CollapseAnimAdapter.Co
 
     private var collapseAnimInfoMap: Map<Int, CollapseAnimInfo>? = null
 
-    open class CollapseAnimViewHolder(
-        val rootView: CollapseAnimFrameLayout,
-        val textView: TextView,
-    ) : RecyclerView.ViewHolder(rootView) {
+    open class ViewHolder(
+        override val rootView: CollapseAnimFrameLayout,
+        override val textView: TextView,
+    ) : RecyclerView.ViewHolder(rootView),
+        CollapseAnimViewHolder {
 
-        var collapseAnimInfo: CollapseAnimInfo? = null
+        override var collapseAnimInfo: CollapseAnimInfo? = null
 
-        fun isCustomAnimated() = collapseAnimInfo != null
+        override fun isCustomAnimated() = collapseAnimInfo != null
 
     }
 
@@ -29,7 +30,7 @@ abstract class CollapseAnimAdapter : RecyclerView.Adapter<CollapseAnimAdapter.Co
         setHasStableIds(true)
     }
 
-    override fun onBindViewHolder(holder: CollapseAnimViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         // TODO Documentation
         holder.collapseAnimInfo = getCollapseAnimInfo(position)
