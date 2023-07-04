@@ -50,11 +50,4 @@ abstract class CollapseAnimAdapter : RecyclerView.Adapter<CollapseAnimAdapter.Vi
         this.collapseAnimInfoMap = animInfoMap
     }
 
-    data class CollapseAnimInfo(
-        val expanded: Boolean,
-        val itemIndex: Int,
-        val firstLineIndex: Int,
-        val linesCount: Int
-    )
-
 }

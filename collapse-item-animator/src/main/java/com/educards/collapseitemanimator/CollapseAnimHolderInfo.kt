@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo
 
 class CollapseAnimHolderInfo : ItemHolderInfo() {
 
-    var animInfo: CollapseAnimAdapter.CollapseAnimInfo? = null
+    var animInfo: CollapseAnimInfo? = null
 
     var animBitmap: Bitmap? = null
     var animBitmapCollapsedFirstLineY: Float? = null
@@ -32,9 +32,9 @@ class CollapseAnimHolderInfo : ItemHolderInfo() {
                 holder.rootView.getCollapseAnimViewData().animBitmapPhase = CollapseAnimView.NOT_ANIMATING
 
                 animBitmap = renderToNewBitmap(holder)
-                val firstLineY = holder.textView.layout.getLineTop(it.firstLineIndex).toFloat()
+                val firstLineY = holder.textView.layout.getLineTop(it.collapsedStateVisibleFirstLine).toFloat()
                 animBitmapCollapsedFirstLineY = firstLineY
-                val lastLineY = holder.textView.layout.getLineBottom(it.firstLineIndex + it.linesCount - 1).toFloat()
+                val lastLineY = holder.textView.layout.getLineBottom(it.collapsedStateVisibleFirstLine + it.collapsedStateVisibleLinesCount - 1).toFloat()
                 animBitmapCollapsedHeight = lastLineY - firstLineY
 
                 // continue tmp switched of anim
