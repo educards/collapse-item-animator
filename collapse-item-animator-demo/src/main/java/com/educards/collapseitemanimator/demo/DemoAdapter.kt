@@ -53,7 +53,9 @@ class DemoAdapter(
         this.data = data
         setAnimInfo(animInfoList)
 
-        // notify
+        // We can't just call notifyDataSetChanged() here,
+        // because the expand/collapse animation would not be triggered correctly.
+        // Discussion: https://stackoverflow.com/a/76234207/915756
         notifyItemRangeChanged(0, data.size)
     }
 
