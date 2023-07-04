@@ -4,6 +4,18 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 /**
+ * A base class for [RecyclerView.Adapter] supporting
+ * the collapse animation.
+ *
+ * This class exists just for a convenience. It is perfectly
+ * valid to implement the aspects of this class into any other
+ * custom [RecyclerView.Adapter] if class inheritance is an option.
+ *
+ * The base point of this class is that:
+ * * it provides view holder which already implements [CollapseAnimViewHolder]
+ * * it provides [setAnimInfo] methods to set animation metadata which
+ *   are expected to be defined prior to launch of the animation
+ *
  * @see setAnimInfo
  */
 abstract class CollapseAnimAdapter : RecyclerView.Adapter<CollapseAnimAdapter.ViewHolder>() {
