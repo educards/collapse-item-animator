@@ -21,7 +21,7 @@ class CollapseAnimHolderInfo : ItemHolderInfo() {
         }
 
     override fun setFrom(holder: RecyclerView.ViewHolder): ItemHolderInfo {
-        if (holder is CollapseAnimAdapter.CollapseAnimViewHolder) {
+        if (holder is CollapseAnimViewHolder) {
 
             animInfo = holder.collapseAnimInfo
 
