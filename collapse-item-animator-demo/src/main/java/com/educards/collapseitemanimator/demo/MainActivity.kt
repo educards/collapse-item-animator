@@ -20,7 +20,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.educards.collapseitemanimator.CollapseAnimAdapter
+import com.educards.collapseitemanimator.CollapseAnimInfo
 import com.educards.collapseitemanimator.CollapseItemAnimator
 import com.educards.collapseitemanimator.demo.databinding.ActivityMainBinding
 

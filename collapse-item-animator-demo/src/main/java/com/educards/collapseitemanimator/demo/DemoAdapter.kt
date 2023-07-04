@@ -20,6 +20,7 @@ import android.app.Activity
 import android.view.ViewGroup
 import com.educards.collapseitemanimator.CollapseAnimAdapter
 import com.educards.collapseitemanimator.CollapseAnimFrameLayout
+import com.educards.collapseitemanimator.CollapseAnimInfo
 
 class DemoAdapter(
     private val activity: Activity
@@ -30,12 +31,12 @@ class DemoAdapter(
     var dataState: DataState? = null
         private set
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CollapseAnimViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val rootView = activity.layoutInflater.inflate(R.layout.list_item, null) as CollapseAnimFrameLayout
-        return CollapseAnimViewHolder(rootView, rootView.findViewById(R.id.text_view))
+        return ViewHolder(rootView, rootView.findViewById(R.id.text_view))
     }
 
-    override fun onBindViewHolder(holder: CollapseAnimViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         super.onBindViewHolder(holder, position)
         holder.textView.text = data?.get(position)
     }
