@@ -27,7 +27,7 @@ class CollapseItemAnimator : DefaultItemAnimator() {
     }
 
     override fun canReuseUpdatedViewHolder(viewHolder: RecyclerView.ViewHolder) =
-        if (viewHolder is CollapseAnimAdapter.CollapseAnimViewHolder
+        if (viewHolder is CollapseAnimViewHolder
             && viewHolder.isCustomAnimated()
         ) {
             true
@@ -53,11 +53,11 @@ class CollapseItemAnimator : DefaultItemAnimator() {
                 if (newHolder != oldHolder) {
                     error("A single holder instance expected for custom expand/collapse animation")
                 }
-                if (newHolder !is CollapseAnimAdapter.CollapseAnimViewHolder) {
-                    error("A holder of type ${CollapseAnimAdapter.CollapseAnimViewHolder::class.simpleName} expected for custom expand/collapse animation")
+                if (newHolder !is CollapseAnimViewHolder) {
+                    error("A holder of type ${CollapseAnimViewHolder::class.simpleName} expected for custom expand/collapse animation")
                 }
 
-                val holder = oldHolder as CollapseAnimAdapter.CollapseAnimViewHolder
+                val holder = oldHolder as CollapseAnimViewHolder
                 val rootView = holder.rootView
                 val rootViewAnimData = rootView.getCollapseAnimViewData()
 
@@ -136,7 +136,7 @@ class CollapseItemAnimator : DefaultItemAnimator() {
                 }
 
                 // track animation
-                animatorMap[holder] = AnimatorInfo(anim)
+                animatorMap[holder as RecyclerView.ViewHolder] = AnimatorInfo(anim)
 
                 // start animation
                 anim.addUpdateListener(animUpdateListener)
