@@ -16,21 +16,42 @@
 
 package com.educards.collapseitemanimator.demo
 
-import android.app.Activity
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.educards.collapseitemanimator.CollapseAnimAdapter
-import com.educards.collapseitemanimator.AnimTargetState
 import com.educards.collapseitemanimator.AnimInfo
+import com.educards.collapseitemanimator.AnimTargetState
+import com.educards.collapseitemanimator.CollapseAnimAdapter
 import com.educards.collapseitemanimator.CollapseAnimFrameLayout
+import com.educards.collapseitemanimator.CollapseAnimViewHolder
+import com.educards.collapseitemanimator.CollapsedStateInfo
 
 class DemoAdapter(
+
     private val layoutInflater: LayoutInflater,
-    recyclerView: RecyclerView
-) : CollapseAnimAdapter(recyclerView) {
+
+    /**
+     * A cyclic reference to [RecyclerView] which uses this `Adapter`.
+     *
+     * Adapter needs [RecyclerView] to access view holders based
+     * on their adapter position (see [findViewHolderForAdapterPosition]).
+     */
+    private val recyclerView: RecyclerView
+
+) : RecyclerView.Adapter<DemoAdapter.ViewHolder>(),
+    CollapseAnimAdapter {
+
+    init {
+        setupStableIds()
+    }
 
     private var data: List<String>? = null
+
+    override val pendingAnimInfoMap = mutableMapOf<Int, Pair<AnimTargetState, CollapsedStateInfo>>()
+
+    override fun findViewHolderForAdapterPosition(position: Int) =
+        recyclerView.findViewHolderForAdapterPosition(position)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val rootView = layoutInflater.inflate(R.layout.list_item, null) as CollapseAnimFrameLayout
@@ -38,12 +59,20 @@ class DemoAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        super.onBindViewHolder(holder, position)
+        setPendingAnimInfo(holder, position)
         holder.textView.text = data?.get(position)
     }
 
     override fun getItemCount(): Int {
         return data?.size ?: 0
+    }
+
+    protected fun setupStableIds() {
+        setHasStableIds(true)
+    }
+
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
     }
 
     fun setData(
@@ -60,22 +89,13 @@ class DemoAdapter(
         notifyItemRangeChanged(0, data.size)
     }
 
-    private fun setAnimInfo(animInfoList: List<AnimInfo>?) {
-        resetAnimInfo()
-        animInfoList?.forEach { animInfo ->
-
-            // "Out-animation" setup
-            setAnimInfoForCurrentHolder(
-                animInfo.animItemIndex,
-                animInfo.animTargetState.getOpposite(),
-                animInfo
-                    .getIfAnimDirOrNull(AnimTargetState.COLLAPSED)
-                    ?.collapsedStateInfo
-            )
-
-            // "In-animation" setup
-            setAnimInfoForPendingHolder(animInfo)
-        }
+    open class ViewHolder(
+        override val rootView: CollapseAnimFrameLayout,
+        override val textView: TextView,
+    ) : RecyclerView.ViewHolder(rootView),
+        CollapseAnimViewHolder {
+        override var animTargetState: AnimTargetState? = null
+        override var collapsedStateInfo: CollapsedStateInfo? = null
     }
 
 }

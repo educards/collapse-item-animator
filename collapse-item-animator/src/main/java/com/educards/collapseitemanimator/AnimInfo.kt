@@ -34,9 +34,4 @@ data class AnimInfo(
      */
     val collapsedStateInfo: CollapsedStateInfo
 
-) {
-
-    fun getIfAnimDirOrNull(animDir: AnimTargetState) =
-        if (this.animTargetState == animDir) this else null
-
-}
+)

@@ -1,7 +1,7 @@
 package com.educards.collapseitemanimator
 
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
 /**
  * A base class for [RecyclerView.Adapter] supporting
@@ -18,75 +18,53 @@ import androidx.recyclerview.widget.RecyclerView
  *
  * @see setPendingAnimInfo
  */
-abstract class CollapseAnimAdapter(
+interface CollapseAnimAdapter {
 
-    /**
-     * A cyclic reference to [RecyclerView] which uses this `Adapter`.
-     *
-     * Adapter needs [RecyclerView] to access view holders based
-     * on their adapter position (see [setAnimInfoForCurrentHolder]).
-     */
-    val recyclerView: RecyclerView
-
-) : RecyclerView.Adapter<CollapseAnimAdapter.ViewHolder>() {
-
-    init {
-        setupStableIds()
-    }
-
-    private var pendingAnimInfoMap = mutableMapOf<Int, Pair<AnimTargetState, CollapsedStateInfo>>()
-
-    open class ViewHolder(
-        override val rootView: CollapseAnimFrameLayout,
-        override val textView: TextView,
-    ) : RecyclerView.ViewHolder(rootView),
-        CollapseAnimViewHolder {
-        override var animTargetState: AnimTargetState? = null
-        override var collapsedStateInfo: CollapsedStateInfo? = null
-    }
-
-    protected fun setupStableIds() {
-        setHasStableIds(true)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        setPendingAnimInfo(holder, position)
-    }
+    val pendingAnimInfoMap: MutableMap<Int, Pair<AnimTargetState, CollapsedStateInfo>>
 
     /**
      * Propagates pending anim info further to [holder].
      */
-    protected open fun setPendingAnimInfo(holder: ViewHolder, position: Int) {
-        val pendingAnimInfo = pendingAnimInfoMap[position]
-        holder.animTargetState = pendingAnimInfo?.first
-        holder.collapsedStateInfo = pendingAnimInfo?.second
-    }
-
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-
-    protected fun resetAnimInfo() {
-        pendingAnimInfoMap.clear()
-    }
-
-    protected fun setAnimInfoForCurrentHolder(
-        animItemIndex: Int,
-        animTargetState: AnimTargetState,
-        collapsedStateInfo: CollapsedStateInfo?
-    ) {
-        val currentViewHolder = recyclerView.findViewHolderForAdapterPosition(animItemIndex)
-        if (currentViewHolder is CollapseAnimViewHolder) {
-            currentViewHolder.animTargetState = animTargetState
-            currentViewHolder.collapsedStateInfo = collapsedStateInfo
+    fun setPendingAnimInfo(holder: ViewHolder, position: Int) {
+        if (holder is CollapseAnimViewHolder) {
+            val pendingAnimInfo = pendingAnimInfoMap[position]
+            holder.animTargetState = pendingAnimInfo?.first
+            holder.collapsedStateInfo = pendingAnimInfo?.second
         }
     }
 
-    protected fun setAnimInfoForPendingHolder(animInfo: AnimInfo) {
+    fun setAnimInfo(animInfoList: List<AnimInfo>?) {
+        resetAnimInfo()
+        animInfoList?.forEach { animInfo ->
+            // "Out-animation" setup
+            setAnimInfoForCurrentHolder(animInfo)
+            // "In-animation" setup
+            setAnimInfoForPendingHolder(animInfo)
+        }
+    }
+
+    fun resetAnimInfo() {
+        pendingAnimInfoMap.clear()
+    }
+
+    fun setAnimInfoForCurrentHolder(animInfo: AnimInfo) {
+        val currentViewHolder = findViewHolderForAdapterPosition(animInfo.animItemIndex)
+        if (currentViewHolder is CollapseAnimViewHolder) {
+            currentViewHolder.animTargetState = animInfo.animTargetState.getOpposite()
+            currentViewHolder.collapsedStateInfo =
+                if (animInfo.animTargetState == AnimTargetState.COLLAPSED) {
+                    animInfo.collapsedStateInfo
+                } else null
+        }
+    }
+
+    fun setAnimInfoForPendingHolder(animInfo: AnimInfo) {
         pendingAnimInfoMap[animInfo.animItemIndex] = Pair(
             animInfo.animTargetState,
             animInfo.collapsedStateInfo
         )
     }
+
+    fun findViewHolderForAdapterPosition(position: Int): ViewHolder?
 
 }
