@@ -13,29 +13,36 @@ import androidx.recyclerview.widget.RecyclerView
  *
  * The base point of this class is that:
  * * it provides view holder which already implements [CollapseAnimViewHolder]
- * * it provides [setAnimInfo] methods to set animation metadata which
+ * * it provides [setPendingAnimInfo] methods to set animation metadata which
  *   are expected to be defined prior to launch of the animation
  *
- * @see setAnimInfo
+ * @see setPendingAnimInfo
  */
-abstract class CollapseAnimAdapter : RecyclerView.Adapter<CollapseAnimAdapter.ViewHolder>() {
+abstract class CollapseAnimAdapter(
+
+    /**
+     * A cyclic reference to [RecyclerView] which uses this `Adapter`.
+     *
+     * Adapter needs [RecyclerView] to access view holders based
+     * on their adapter position (see [setAnimInfoForCurrentHolder]).
+     */
+    val recyclerView: RecyclerView
+
+) : RecyclerView.Adapter<CollapseAnimAdapter.ViewHolder>() {
 
     init {
         setupStableIds()
     }
 
-    private var collapseAnimInfoMap: Map<Int, CollapseAnimInfo>? = null
+    private var pendingAnimInfoMap = mutableMapOf<Int, Pair<AnimTargetState, CollapsedStateInfo>>()
 
     open class ViewHolder(
         override val rootView: CollapseAnimFrameLayout,
         override val textView: TextView,
     ) : RecyclerView.ViewHolder(rootView),
         CollapseAnimViewHolder {
-
-        override var collapseAnimInfo: CollapseAnimInfo? = null
-
-        override fun isCustomAnimated() = collapseAnimInfo != null
-
+        override var animTargetState: AnimTargetState? = null
+        override var collapsedStateInfo: CollapsedStateInfo? = null
     }
 
     protected fun setupStableIds() {
@@ -43,23 +50,43 @@ abstract class CollapseAnimAdapter : RecyclerView.Adapter<CollapseAnimAdapter.Vi
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
-        // TODO Documentation
-        holder.collapseAnimInfo = getCollapseAnimInfo(position)
+        setPendingAnimInfo(holder, position)
     }
 
-    fun getCollapseAnimInfo(position: Int) = collapseAnimInfoMap?.get(position)
+    /**
+     * Propagates pending anim info further to [holder].
+     */
+    protected open fun setPendingAnimInfo(holder: ViewHolder, position: Int) {
+        val pendingAnimInfo = pendingAnimInfoMap[position]
+        holder.animTargetState = pendingAnimInfo?.first
+        holder.collapsedStateInfo = pendingAnimInfo?.second
+    }
 
     override fun getItemId(position: Int): Long {
         return position.toLong()
     }
 
-    protected fun setAnimInfo(animInfoList: List<CollapseAnimInfo>?) {
-        this.collapseAnimInfoMap = animInfoList?.associate { Pair(it.itemIndex, it) }
+    protected fun resetAnimInfo() {
+        pendingAnimInfoMap.clear()
     }
 
-    protected fun setAnimInfo(animInfoMap: Map<Int, CollapseAnimInfo>?) {
-        this.collapseAnimInfoMap = animInfoMap
+    protected fun setAnimInfoForCurrentHolder(
+        animItemIndex: Int,
+        animTargetState: AnimTargetState,
+        collapsedStateInfo: CollapsedStateInfo?
+    ) {
+        val currentViewHolder = recyclerView.findViewHolderForAdapterPosition(animItemIndex)
+        if (currentViewHolder is CollapseAnimViewHolder) {
+            currentViewHolder.animTargetState = animTargetState
+            currentViewHolder.collapsedStateInfo = collapsedStateInfo
+        }
+    }
+
+    protected fun setAnimInfoForPendingHolder(animInfo: AnimInfo) {
+        pendingAnimInfoMap[animInfo.animItemIndex] = Pair(
+            animInfo.animTargetState,
+            animInfo.collapsedStateInfo
+        )
     }
 
 }

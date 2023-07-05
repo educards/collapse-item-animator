@@ -16,27 +16,14 @@
 
 package com.educards.collapseitemanimator
 
-import android.widget.TextView
+enum class AnimTargetState {
+    COLLAPSED,
+    EXPANDED;
 
-/**
- * An interface required to be implemented by those
- * [androidx.recyclerview.widget.RecyclerView.ViewHolder]s
- * which support "collapse animation".
- */
-interface CollapseAnimViewHolder {
-
-    val rootView: CollapseAnimFrameLayout
-
-    /**
-     * "Collapse item animation" is (currently) able to collapse/expand [TextView]s only.
-     * This is the [TextView] instance to animate. It is located inside [rootView].
-     */
-    val textView: TextView
-
-    var animTargetState: AnimTargetState?
-
-    var collapsedStateInfo: CollapsedStateInfo?
-
-    fun isCustomAnimated() = animTargetState != null
+    fun getOpposite() =
+        when (this) {
+            EXPANDED -> COLLAPSED
+            COLLAPSED -> EXPANDED
+        }
 
 }

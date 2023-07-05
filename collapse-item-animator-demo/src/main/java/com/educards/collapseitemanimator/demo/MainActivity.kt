@@ -20,7 +20,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.educards.collapseitemanimator.CollapseAnimInfo
+import com.educards.collapseitemanimator.AnimTargetState
+import com.educards.collapseitemanimator.AnimInfo
+import com.educards.collapseitemanimator.CollapsedStateInfo
 import com.educards.collapseitemanimator.CollapseItemAnimator
 import com.educards.collapseitemanimator.demo.databinding.ActivityMainBinding
 
@@ -32,6 +34,8 @@ class MainActivity : AppCompatActivity() {
 
     private var adapter: DemoAdapter? = null
 
+    private var previousAnimDirection: AnimTargetState? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -42,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initRecyclerView() {
 
-        this.adapter = DemoAdapter(this)
+        this.adapter = DemoAdapter(layoutInflater, binding.recyclerView)
 
         binding.recyclerView.adapter = this.adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -57,49 +61,54 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initAdapterData() {
-        switchAdapterData()
+        switchAdapterData(false)
     }
 
     private fun initSwitchButton() {
-        updateSwitchButtonText(getNextDataState())
+        updateSwitchButtonText(getOppositeAnimDirection(previousAnimDirection))
         binding.switchButton.setOnClickListener {
-            switchAdapterData()
-            updateSwitchButtonText(getNextDataState())
+            switchAdapterData(true)
+            updateSwitchButtonText(getOppositeAnimDirection(previousAnimDirection))
         }
     }
 
-    private fun updateSwitchButtonText(nextDataState: DemoAdapter.DataState) {
-        binding.switchButton.text = if (nextDataState == DemoAdapter.DataState.EXPANDED) {
-            "Expand"
-        } else {
-            "Collapse"
-        }
+    private fun updateSwitchButtonText(animDir: AnimTargetState) {
+        binding.switchButton.text = animDir.name
     }
 
-    private fun switchAdapterData() {
+    private fun switchAdapterData(animate: Boolean) {
 
         // detect new state (switch)
-        val newDataState = getNextDataState()
+        val nextAnimDirection = getOppositeAnimDirection(previousAnimDirection)
+        previousAnimDirection = nextAnimDirection
 
         // generate and set data
-        adapter?.setData(
-            newDataState,
-            when (newDataState) {
-                DemoAdapter.DataState.EXPANDED -> generateExpandedData()
-                DemoAdapter.DataState.COLLAPSED -> generateCollapsedData()
-            },
-            generateAnimInfo(newDataState)
-        )
-    }
-
-    private fun getNextDataState() =
-        when (adapter?.dataState) {
-            DemoAdapter.DataState.EXPANDED -> DemoAdapter.DataState.COLLAPSED
-            DemoAdapter.DataState.COLLAPSED -> DemoAdapter.DataState.EXPANDED
-            null -> DemoAdapter.DataState.EXPANDED
+        val nextData = when (nextAnimDirection) {
+            AnimTargetState.EXPANDED -> generateExpandedSampleData()
+            AnimTargetState.COLLAPSED -> generateCollapsedSampleData()
         }
 
-    private fun generateCollapsedData() = listOf(
+        if (animate) {
+            adapter?.setData(
+                nextData,
+                listOf(
+                    AnimInfo(
+                        animItemIndex = 3,
+                        animTargetState = nextAnimDirection,
+                        collapsedStateInfo = CollapsedStateInfo(1, 2)
+                    )
+                )
+            )
+
+        } else {
+            adapter?.setData(nextData, null)
+        }
+    }
+
+    private fun getOppositeAnimDirection(animDirection: AnimTargetState?) =
+        animDirection?.getOpposite() ?: AnimTargetState.EXPANDED
+
+    private fun generateCollapsedSampleData() = listOf(
 
         "p apsoidj fpoaisj dfpoikaksj dpfoija sdpofij aspoidj",
         "qoiu h3uroeiquh mn apsoijd fpoiajs dfpoijas",
@@ -144,7 +153,7 @@ class MainActivity : AppCompatActivity() {
         "Amet",
     )
 
-    fun generateExpandedData() = listOf(
+    fun generateExpandedSampleData() = listOf(
 
         "Lorem poiasj dfpoija sdpofij aspdoijf pasoidjf\npoaisjd fpoiajsd fpoija sdpfoij aspdoifj apsoidjf\np apsoidj fpoaisj dfpoikaksj dpfoija sdpofij aspoidj",
         "Ipsum oapisuduh jfoiajush dflkjlkm,nx\nbcvk,nxbcnmcxb,mcnvb x,m.cn v.,mxc nv.,mh\nqoiu h3uroeiquh mn apsoijd fpoiajs dfpoijas\ndpofij aspdoikkfj paosidjf",
@@ -189,52 +198,6 @@ class MainActivity : AppCompatActivity() {
         "Amet",
 
         )
-
-    fun generateAnimInfo(dataState: DemoAdapter.DataState) = listOf(
-
-//                MyAdapter2.AnimInfo(expandedData, 0, 2, 2),
-//                MyAdapter2.AnimInfo(expandedData, 1, 2, 1),
-//                MyAdapter2.AnimInfo(expandedData, 2, 0, 1),
-        CollapseAnimAdapter.CollapseAnimInfo(dataState.asBoolean, 3, 1, 2),
-//                MyAdapter2.AnimInfo(expandedData, 4, 0, 1),
-//
-//                MyAdapter2.AnimInfo(expandedData, 5, 2, 2),
-//                MyAdapter2.AnimInfo(expandedData, 6, 2, 1),
-//                MyAdapter2.AnimInfo(expandedData, 7, 0, 1),
-//                MyAdapter2.AnimInfo(expandedData, 8, 1, 2),
-//                MyAdapter2.AnimInfo(expandedData, 9, 0, 1),
-//
-//                MyAdapter2.AnimInfo(expandedData, 10, 2, 2),
-//                MyAdapter2.AnimInfo(expandedData, 11, 2, 1),
-//                MyAdapter2.AnimInfo(expandedData, 12, 0, 1),
-//                MyAdapter2.AnimInfo(expandedData, 13, 1, 2),
-//                MyAdapter2.AnimInfo(expandedData, 14, 0, 1),
-//
-//                MyAdapter2.AnimInfo(expandedData, 15, 2, 2),
-//                MyAdapter2.AnimInfo(expandedData, 16, 2, 1),
-//                MyAdapter2.AnimInfo(expandedData, 17, 0, 1),
-//                MyAdapter2.AnimInfo(expandedData, 18, 1, 2),
-//                MyAdapter2.AnimInfo(expandedData, 19, 0, 1),
-//
-//                MyAdapter2.AnimInfo(expandedData, 20, 2, 2),
-//                MyAdapter2.AnimInfo(expandedData, 21, 2, 1),
-//                MyAdapter2.AnimInfo(expandedData, 22, 0, 1),
-//                MyAdapter2.AnimInfo(expandedData, 23, 1, 2),
-//                MyAdapter2.AnimInfo(expandedData, 24, 0, 1),
-//
-//                MyAdapter2.AnimInfo(expandedData, 25, 2, 2),
-//                MyAdapter2.AnimInfo(expandedData, 26, 2, 1),
-//                MyAdapter2.AnimInfo(expandedData, 27, 0, 1),
-//                MyAdapter2.AnimInfo(expandedData, 28, 1, 2),
-//                MyAdapter2.AnimInfo(expandedData, 29, 0, 1),
-//
-//                MyAdapter2.AnimInfo(expandedData, 30, 2, 2),
-//                MyAdapter2.AnimInfo(expandedData, 31, 2, 1),
-//                MyAdapter2.AnimInfo(expandedData, 32, 0, 1),
-//                MyAdapter2.AnimInfo(expandedData, 33, 1, 2),
-//                MyAdapter2.AnimInfo(expandedData, 34, 0, 1),
-    )
-
 
     companion object {
         private const val DEBUG = true

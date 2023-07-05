@@ -17,25 +17,13 @@
 package com.educards.collapseitemanimator
 
 /**
- * Data class providing the details on how the collapse/expand
- * animation should be performed.
+ * Data class providing the details of how exactly the
+ * collapse/expand animation should be performed.
  *
  * @see collapsedStateVisibleFirstLine
  * @see collapsedStateVisibleLinesCount
  */
-data class CollapseAnimInfo(
-
-    /**
-     * State of the animation which this data
-     * class describes: collapsed or expanded.
-     */
-    val expanded: Boolean,
-
-    /**
-     * Index/position of an item from
-     * the point of view of an [android.widget.Adapter].
-     */
-    val itemIndex: Int,
+data class CollapsedStateInfo(
 
     /**
      * Index of the first visible line of the animated [android.widget.TextView]

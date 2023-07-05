@@ -17,22 +17,23 @@
 package com.educards.collapseitemanimator.demo
 
 import android.app.Activity
+import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import com.educards.collapseitemanimator.CollapseAnimAdapter
+import com.educards.collapseitemanimator.AnimTargetState
+import com.educards.collapseitemanimator.AnimInfo
 import com.educards.collapseitemanimator.CollapseAnimFrameLayout
-import com.educards.collapseitemanimator.CollapseAnimInfo
 
 class DemoAdapter(
-    private val activity: Activity
-) : CollapseAnimAdapter() {
+    private val layoutInflater: LayoutInflater,
+    recyclerView: RecyclerView
+) : CollapseAnimAdapter(recyclerView) {
 
     private var data: List<String>? = null
 
-    var dataState: DataState? = null
-        private set
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val rootView = activity.layoutInflater.inflate(R.layout.list_item, null) as CollapseAnimFrameLayout
+        val rootView = layoutInflater.inflate(R.layout.list_item, null) as CollapseAnimFrameLayout
         return ViewHolder(rootView, rootView.findViewById(R.id.text_view))
     }
 
@@ -46,12 +47,11 @@ class DemoAdapter(
     }
 
     fun setData(
-        dataState: DataState,
         data: List<String>,
-        animInfoList: List<CollapseAnimInfo>?
+        animInfoList: List<AnimInfo>?
     ) {
-        this.dataState = dataState
         this.data = data
+
         setAnimInfo(animInfoList)
 
         // We can't just call notifyDataSetChanged() here,
@@ -60,16 +60,22 @@ class DemoAdapter(
         notifyItemRangeChanged(0, data.size)
     }
 
-    /**
-     * Defines the state of Adapter data from the
-     * [collapse animation][com.educards.collapseitemanimator.CollapseItemAnimator]
-     * point of view
-     */
-    enum class DataState(
-        val asBoolean: Boolean
-    ) {
-        EXPANDED(true),
-        COLLAPSED(false)
+    private fun setAnimInfo(animInfoList: List<AnimInfo>?) {
+        resetAnimInfo()
+        animInfoList?.forEach { animInfo ->
+
+            // "Out-animation" setup
+            setAnimInfoForCurrentHolder(
+                animInfo.animItemIndex,
+                animInfo.animTargetState.getOpposite(),
+                animInfo
+                    .getIfAnimDirOrNull(AnimTargetState.COLLAPSED)
+                    ?.collapsedStateInfo
+            )
+
+            // "In-animation" setup
+            setAnimInfoForPendingHolder(animInfo)
+        }
     }
 
 }

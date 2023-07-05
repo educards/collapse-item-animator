@@ -7,25 +7,22 @@ import androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo
 
 class CollapseAnimHolderInfo : ItemHolderInfo() {
 
-    var animInfo: CollapseAnimInfo? = null
+    var animTargetState: AnimTargetState? = null
+    var collapsedStateInfo: CollapsedStateInfo? = null
 
     var animBitmap: Bitmap? = null
     var animBitmapCollapsedFirstLineY: Float? = null
     var animBitmapCollapsedHeight: Float? = null
 
-    fun isExpanded() = animInfoIfExpanded() != null
-
-    fun animInfoIfExpanded() =
-        animInfo?.let {
-            if (it.expanded) it else null
-        }
+    fun isExpanded() = animTargetState == AnimTargetState.EXPANDED
 
     override fun setFrom(holder: RecyclerView.ViewHolder): ItemHolderInfo {
         if (holder is CollapseAnimViewHolder) {
 
-            animInfo = holder.collapseAnimInfo
+            animTargetState = holder.animTargetState
+            collapsedStateInfo = holder.collapsedStateInfo
 
-            animInfoIfExpanded()?.let {
+            collapsedStateInfo?.let {
 
                 // tmp switch off potential ongoing animation
                 val preRenderAnimPhase = holder.rootView.getCollapseAnimViewData().animBitmapPhase
