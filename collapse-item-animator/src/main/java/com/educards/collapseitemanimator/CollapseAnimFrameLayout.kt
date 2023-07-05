@@ -5,6 +5,13 @@ import android.graphics.Canvas
 import android.util.AttributeSet
 import android.widget.FrameLayout
 
+/**
+ * [FrameLayout] used by items which support "collapse animation".
+ *
+ * This view is required to be the root view of animated item
+ * and is responsible for proper rendering of the animation
+ * (see [CollapseAnimView] interface).
+ */
 class CollapseAnimFrameLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
