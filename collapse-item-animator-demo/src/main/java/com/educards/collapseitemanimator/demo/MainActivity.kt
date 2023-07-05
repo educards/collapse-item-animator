@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateSwitchButtonText(animDir: AnimTargetState) {
-        binding.switchButton.text = animDir.name
+        binding.switchButton.text = if (animDir == AnimTargetState.EXPANDED) "Expand" else "Collapse"
     }
 
     private fun switchAdapterData(animate: Boolean) {
