@@ -86,7 +86,7 @@ class CollapseItemAnimator : DefaultItemAnimator() {
                     rootViewAnimData.animBitmapCollapsedFirstLineY = preInfo.animBitmapCollapsedFirstLineY ?: error("'animBitmapCollapsedFirstLineY' expected")
                     rootViewAnimData.animBitmapCollapsedHeight = preInfo.animBitmapCollapsedHeight ?: error("'animBitmapCollapsedHeight' expected")
                 }
-                holder.rootView.invalidate() // redraw view with animBitmap which we've just set
+                rootView.invalidate() // redraw view with animBitmap which we've just set
 
                 // prepare anim
                 val anim = ValueAnimator.ofFloat(0f, 1f)
@@ -94,7 +94,7 @@ class CollapseItemAnimator : DefaultItemAnimator() {
 
                 val animUpdateListener = ValueAnimator.AnimatorUpdateListener {
 
-                    holder.rootView.translationY = -deltaY * (1f - it.animatedFraction)
+                    rootView.translationY = -deltaY * (1f - it.animatedFraction)
 
                     rootViewAnimData.animBitmapPhase =
                         if (expanding) {

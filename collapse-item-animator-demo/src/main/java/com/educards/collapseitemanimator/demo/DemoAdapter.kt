@@ -32,9 +32,8 @@ class DemoAdapter(
     private val layoutInflater: LayoutInflater,
 
     /**
-     * A cyclic reference to [RecyclerView] which uses this `Adapter`.
-     *
-     * Adapter needs [RecyclerView] to access view holders based
+     * A cyclic reference to [RecyclerView] which
+     * is used to access view holders based
      * on their adapter position (see [findViewHolderForAdapterPosition]).
      */
     private val recyclerView: RecyclerView

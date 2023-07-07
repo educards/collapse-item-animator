@@ -16,7 +16,8 @@ class CollapseAnimFrameLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr), CollapseAnimView {
+) : FrameLayout(context, attrs, defStyleAttr),
+    CollapseAnimView {
 
     private val collapseAnimViewData = CollapseAnimView.CollapseAnimViewData()
 
