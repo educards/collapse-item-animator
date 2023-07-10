@@ -18,11 +18,15 @@ package com.educards.collapseitemanimator
 
 data class AnimInfo(
 
+    val itemIdAfterTransition: Long,
+
     /**
      * Index of the animated item
      * from Adapter's point of view.
      */
-    val animItemIndex: Int,
+    val itemIndexBeforeTransition: Int,
+
+    val itemIndexAfterTransition: Int,
 
     /**
      * Target animation state.
@@ -34,4 +38,9 @@ data class AnimInfo(
      */
     val collapsedStateInfo: CollapsedStateInfo
 
-)
+) {
+
+    fun isItemMoved() =
+        itemIndexBeforeTransition != itemIndexAfterTransition
+
+}

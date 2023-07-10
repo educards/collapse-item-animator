@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         DataBindingUtil.inflate(layoutInflater, R.layout.activity_main, null, false)
     }
 
-    private var adapter: DemoAdapter? = null
+    private lateinit var adapter: DemoAdapter
 
     private var previousAnimDirection: AnimTargetState? = null
 
@@ -87,13 +87,24 @@ class MainActivity : AppCompatActivity() {
             AnimTargetState.EXPANDED -> generateExpandedSampleData()
             AnimTargetState.COLLAPSED -> generateCollapsedSampleData()
         }
+        val animItemIndexBefore = when (nextAnimDirection) {
+            AnimTargetState.EXPANDED -> 1
+            AnimTargetState.COLLAPSED -> 3
+        }
+        val animItemIndexAfter = when (nextAnimDirection) {
+            AnimTargetState.EXPANDED -> 3
+            AnimTargetState.COLLAPSED -> 1
+        }
 
         if (animate) {
-            adapter?.setData(
+            adapter.setData(
                 nextData,
+                nextAnimDirection,
                 listOf(
                     AnimInfo(
-                        animItemIndex = 3,
+                        itemIdAfterTransition = adapter.getItemId(animItemIndexBefore),
+                        itemIndexBeforeTransition = animItemIndexBefore,
+                        itemIndexAfterTransition = animItemIndexAfter,
                         animTargetState = nextAnimDirection,
                         collapsedStateInfo = CollapsedStateInfo(1, 2)
                     )
@@ -101,7 +112,7 @@ class MainActivity : AppCompatActivity() {
             )
 
         } else {
-            adapter?.setData(nextData, null)
+            adapter.setData(nextData, nextAnimDirection, null)
         }
     }
 
@@ -110,38 +121,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun generateCollapsedSampleData() = listOf(
 
-        "p apsoidj fpoaisj dfpoikaksj dpfoija sdpofij aspoidj",
-        "qoiu h3uroeiquh mn apsoijd fpoiajs dfpoijas",
-        "Dolor",
-        "aspdoij fpoij;lcxkvnmzx,mcnvz.,xmn\ncvopqiwfpoijasdlkfj.z,",
-        "Amet",
-
-        "p apsoidj fpoaisj dfpoikaksj dpfoija sdpofij aspoidj",
-        "qoiu h3uroeiquh mn apsoijd fpoiajs dfpoijas",
-        "Dolor",
-        "aspdoij fpoij;lcxkvnmzx,mcnvz.,xmn\ncvopqiwfpoijasdlkfj.z,",
-        "Amet",
-
-        "p apsoidj fpoaisj dfpoikaksj dpfoija sdpofij aspoidj",
-        "qoiu h3uroeiquh mn apsoijd fpoiajs dfpoijas",
-        "Dolor",
-        "aspdoij fpoij;lcxkvnmzx,mcnvz.,xmn\ncvopqiwfpoijasdlkfj.z,",
-        "Amet",
-
-        "p apsoidj fpoaisj dfpoikaksj dpfoija sdpofij aspoidj",
-        "qoiu h3uroeiquh mn apsoijd fpoiajs dfpoijas",
-        "Dolor",
-        "aspdoij fpoij;lcxkvnmzx,mcnvz.,xmn\ncvopqiwfpoijasdlkfj.z,",
-        "Amet",
-
-        "p apsoidj fpoaisj dfpoikaksj dpfoija sdpofij aspoidj",
-        "qoiu h3uroeiquh mn apsoijd fpoiajs dfpoijas",
-        "Dolor",
-        "aspdoij fpoij;lcxkvnmzx,mcnvz.,xmn\ncvopqiwfpoijasdlkfj.z,",
-        "Amet",
-
-        "p apsoidj fpoaisj dfpoikaksj dpfoija sdpofij aspoidj",
-        "qoiu h3uroeiquh mn apsoijd fpoiajs dfpoijas",
         "Dolor",
         "aspdoij fpoij;lcxkvnmzx,mcnvz.,xmn\ncvopqiwfpoijasdlkfj.z,",
         "Amet",
@@ -201,7 +180,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val DEBUG = true
-        private const val DEBUG_ANIM_DURATION_MS = 2500L
+        private const val DEBUG_ANIM_DURATION_MS = 450L
     }
 
 }

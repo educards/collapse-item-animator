@@ -26,6 +26,7 @@ import com.educards.collapseitemanimator.CollapseAnimAdapter
 import com.educards.collapseitemanimator.CollapseAnimFrameLayout
 import com.educards.collapseitemanimator.CollapseAnimViewHolder
 import com.educards.collapseitemanimator.CollapsedStateInfo
+import java.util.TreeMap
 
 class DemoAdapter(
 
@@ -47,7 +48,11 @@ class DemoAdapter(
 
     private var data: List<String>? = null
 
-    override val pendingAnimInfoMap = mutableMapOf<Int, Pair<AnimTargetState, CollapsedStateInfo>>()
+    override val animInfoMap = TreeMap<Int, AnimInfo>()
+
+    override var animTargetState: AnimTargetState? = null
+
+    override var previousItemCount = -1
 
     override fun findViewHolderForAdapterPosition(position: Int) =
         recyclerView.findViewHolderForAdapterPosition(position)
@@ -71,21 +76,21 @@ class DemoAdapter(
     }
 
     override fun getItemId(position: Int): Long {
-        return position.toLong()
+        return super<CollapseAnimAdapter>.getItemId(position)
     }
 
     fun setData(
         data: List<String>,
+        animTargetState: AnimTargetState,
         animInfoList: List<AnimInfo>?
     ) {
-        this.data = data
+        notifyBeforeDataSet()
 
+        this.data = data
+        this.animTargetState = animTargetState
         setAnimInfo(animInfoList)
 
-        // We can't just call notifyDataSetChanged() here,
-        // because the expand/collapse animation would not be triggered correctly.
-        // Discussion: https://stackoverflow.com/a/76234207/915756
-        notifyItemRangeChanged(0, data.size)
+        notifyAfterDataSet()
     }
 
     open class ViewHolder(
