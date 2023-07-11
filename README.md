@@ -57,8 +57,8 @@ Custom [RecyclerView.ItemAnimator](https://developer.android.com/reference/andro
 ### Support of homogenous ExpansionState
 
 The current design of `CollapseAnimAdapter` supports 2 states (`ExpansionState`s) of its data:
-* all items are expanded
-* all items are collapsed
+1. all items are expanded
+2. all items are collapsed
  
 It doesn't matter which of `Adapter` items are animated (animation with `CollapseItemAnimator` is
 optionally defined by providing `ItemAnimInfo` to `Adapter.setData(...)`). The point here is, that
