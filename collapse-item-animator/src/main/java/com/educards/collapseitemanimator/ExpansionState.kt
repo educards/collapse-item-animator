@@ -16,7 +16,7 @@
 
 package com.educards.collapseitemanimator
 
-enum class AnimTargetState {
+enum class ExpansionState {
     COLLAPSED,
     EXPANDED;
 

@@ -3,111 +3,146 @@ package com.educards.collapseitemanimator
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import java.lang.Integer.min
 import java.util.SortedMap
 
 /**
- * A base class for [RecyclerView.Adapter] supporting
- * the collapse animation.
+ * An interface implemented by [RecyclerView.Adapter] supporting the collapse animation.
  *
- * This class exists just for a convenience. It is perfectly
- * valid to implement the aspects of this class into any other
- * custom [RecyclerView.Adapter] if class inheritance is an option.
- *
- * The base point of this class is that:
- * * it provides view holder which already implements [CollapseAnimViewHolder]
- * * it provides [setPendingAnimInfo] methods to set animation metadata which
- *   are expected to be defined prior to launch of the animation
- *
- * @see setPendingAnimInfo
+ * @see setItemAnimInfo
+ * @see onBindPreTransitionItemAnimInfo
+ * @see onBindPostTransitionItemAnimInfo
+ * @see notifyBeforeDataSet
+ * @see notifyAfterDataSet
  */
 interface CollapseAnimAdapter {
 
-    val animInfoMap: SortedMap<Int, AnimInfo>
+    /**
+     * Animation details of animated items.
+     * * `key`: position of item after transition (post-transition phase)
+     * * `value`: [ItemAnimInfo]
+     * @see setItemAnimInfo
+     */
+    val itemAnimInfoMap: SortedMap<Int, ItemAnimInfo>
 
-    var animTargetState: AnimTargetState?
+    /**
+     * Current [ExpansionState] of the whole [Adapter] (of all its items).
+     *
+     * TODO This is a place for potential improvement.
+     *      The current design of `CollapseAnimAdapter` supports only 2 states:
+     *      * all items are expanded (few of them with expand animation)
+     *      * all items are collapsed (few of them with collapse animation)
+     *      See [README] for details.
+     */
+    var expansionState: ExpansionState?
 
     var previousItemCount: Int
 
-    fun setPendingAnimInfo(holder: ViewHolder, positionAfterTransition: Int) {
-        val pendingAnimInfo = animInfoMap[positionAfterTransition]
-        setAnimInfo(holder, pendingAnimInfo?.animTargetState, pendingAnimInfo?.collapsedStateInfo)
+    /**
+     * Invoked from `onBindViewHolder` to setup view (wrapped by [holder])
+     * to it's post-transition state.
+     *
+     * Note: `onBindViewHolder` is called by the framework prior to taking "snapshot"
+     * of the post-transition state ([CollapseItemAnimator.recordPostLayoutInformation]).
+     * The pre-transition setup of the view is done in [onBindPreTransitionItemAnimInfo], which
+     * is invoked before taking "snapshot" of pre-transition view state ([CollapseItemAnimator.recordPreLayoutInformation]).
+     */
+    fun onBindPostTransitionItemAnimInfo(holder: ViewHolder, positionAfterTransition: Int) {
+        val itemAnimInfo = itemAnimInfoMap[positionAfterTransition]
+        onBindAnimInfo(holder, itemAnimInfo?.itemTargetExpansionState, itemAnimInfo?.animInfo)
     }
 
     /**
-     * Invoked before the transition (animation)
-     * is launched, but after animation metadata together with new data
-     * are already set, to propagate anim info further to [holder].
+     * Propagates [AnimInfo] further to bound [holder].
      *
-     * This is needed because in the current implementation
+     * Invocation of this method for both pre- & post-transition view holders is required,
+     * because in the current implementation of [CollapseItemAnimator]
      * the view holder serves (in some sense) as a "DTO" to propagate
-     * data between this `Adapter` and `Animator` (namely [CollapseItemAnimator]).
+     * data between `Adapter` and [CollapseItemAnimator].
      *
-     * This method needs to be invoked for both
-     * pre & post transition view holders.
-     *
-     * @see setAnimInfoForCurrentHolder
-     * @see setPendingAnimInfo
+     * @see onBindPreTransitionItemAnimInfo
+     * @see onBindPostTransitionItemAnimInfo
      */
-    fun setAnimInfo(
+    private fun onBindAnimInfo(
         holder: ViewHolder,
-        animTargetState: AnimTargetState?,
-        collapsedStateInfo: CollapsedStateInfo?
+        viewExpansionState: ExpansionState?,
+        collapsedStateAnimInfo: AnimInfo?
     ) {
         if (holder is CollapseAnimViewHolder) {
-            holder.animTargetState = animTargetState
-            holder.collapsedStateInfo = collapsedStateInfo
+            holder.viewExpansionState = viewExpansionState
+            holder.animInfo = collapsedStateAnimInfo
         } else {
             error("Unexpected ViewHolder type [${holder::class.simpleName}]")
         }
     }
 
-    fun setAnimInfo(animInfoList: List<AnimInfo>?) {
-        animInfoMap.clear()
-        animInfoList?.forEach { animInfo ->
-            // "Out-animation" setup
-            setAnimInfoForCurrentHolder(animInfo)
-            // "In-animation" setup
-            setAnimInfoForPendingHolder(animInfo)
+    /**
+     * Invoked immediately after new [Adapter]'s data are provided to setup animation.
+     */
+    fun setItemAnimInfo(itemAnimInfoList: List<ItemAnimInfo>?) {
+        itemAnimInfoMap.clear()
+        itemAnimInfoList?.forEach { itemAnimInfo ->
+            // "pre-transition" setup
+            onBindPreTransitionItemAnimInfo(itemAnimInfo)
+            // "transition" & "post-transition" setup
+            itemAnimInfoMap[itemAnimInfo.itemIndexAfterTransition] = itemAnimInfo
         }
     }
 
     /**
-     * Invoked before the transition (before animation is started)
-     * to set anim info to current view holder.
+     * Invoked immediately after new [Adapter]'s data are provided
+     * to setup view (associated with [itemAnimInfo]) to it's pre-transition state.
      *
-     * This is needed because in the current implementation
-     * the view holder serves (in some sense) as a "DTO" to propagate
-     * data between this `Adapter` and `Animator` (namely [CollapseItemAnimator]).
+     * Note:
+     * This method is invoked prior to taking "snapshot" of the pre-transition
+     * state of the associated [itemAnimInfo] view (before [CollapseItemAnimator.recordPostLayoutInformation]).
+     * On the other hand, [onBindPostTransitionItemAnimInfo] is called by the framework to setup view
+     * prior to taking "snapshot" of its post-transition state ([CollapseItemAnimator.recordPostLayoutInformation]).
      */
-    fun setAnimInfoForCurrentHolder(animInfo: AnimInfo) {
-        val currentViewHolder = findViewHolderForAdapterPosition(animInfo.itemIndexBeforeTransition)
+    private fun onBindPreTransitionItemAnimInfo(itemAnimInfo: ItemAnimInfo) {
+        val currentViewHolder = findViewHolderForAdapterPosition(itemAnimInfo.itemIndexBeforeTransition)
         if (currentViewHolder is CollapseAnimViewHolder) {
-            currentViewHolder.animTargetState = animInfo.animTargetState.getOpposite()
-            currentViewHolder.collapsedStateInfo =
-                if (animInfo.animTargetState == AnimTargetState.COLLAPSED) {
-                    animInfo.collapsedStateInfo
-                } else null
-        }
-    }
 
-    fun setAnimInfoForPendingHolder(animInfo: AnimInfo) {
-        animInfoMap[animInfo.itemIndexAfterTransition] = animInfo
+            // This method is invoked in pre-animation phase, therefore
+            // the current view's `ExpansionState` represents the initial
+            // (and therefor opposite) state of the `itemTargetExpansionState`.
+            val currentViewExpansionState = itemAnimInfo.itemTargetExpansionState.getOpposite()
+
+            onBindAnimInfo(
+                currentViewHolder,
+                currentViewExpansionState,
+
+                // Because both anim directions ...
+                //    (collapsed -> expanded)
+                //    (expanded  -> collapsed)
+                // ... are animated by rendering bitmap of the expanded view,
+                // we provide AnimInfo (which holds also bitmap rendering details)
+                // only for expanded view (since this is the view being always animated).
+                if (currentViewExpansionState == ExpansionState.EXPANDED) {
+                    itemAnimInfo.animInfo
+                } else null
+            )
+        }
     }
 
     fun findViewHolderForAdapterPosition(position: Int): ViewHolder?
 
     fun getItemId(position: Int) =
-        animTargetState?.let { animTargetState ->
-            animInfoMap[position]?.itemIdAfterTransition
-                ?: getItemId(animTargetState, position)
+        expansionState?.let { animTargetState ->
+            itemAnimInfoMap[position]?.itemId
+                ?: getItemIdStaticItems(animTargetState, position)
         } ?: error("'animTargetState' undefined")
 
-    private fun getItemId(animTargetState: AnimTargetState, position: Int) =
+    /**
+     * Returns ID of those items, which are not being
+     * animated during collapse-expand transition.
+     */
+    fun getItemIdStaticItems(animTargetState: ExpansionState, position: Int) =
         when (animTargetState) {
-            AnimTargetState.EXPANDED -> {
+            ExpansionState.EXPANDED -> {
                 position.toLong()
             }
-            AnimTargetState.COLLAPSED -> {
+            ExpansionState.COLLAPSED -> {
                 Int.MAX_VALUE.toLong() + position
             }
         }
@@ -129,7 +164,7 @@ interface CollapseAnimAdapter {
         // total items count (animated items are never removed or inserted, they can be only moved).
         // Because of this approach we can later deal with 'remove'/'insert' sequentially
         // by simply processing all the "gaps" between animated items.
-        animInfoMap.forEach {
+        itemAnimInfoMap.forEach {
             val animInfo = it.value
             notifyItemChanged(animInfo.itemIndexBeforeTransition)
             if (animInfo.isItemMoved()) {
@@ -141,18 +176,21 @@ interface CollapseAnimAdapter {
         }
 
         // Now walk through the "gaps" between animated items.
-        var previousEntry: Map.Entry<Int, AnimInfo>? = null
-        animInfoMap.forEach { nextEntry ->
+        var previousEntry: Map.Entry<Int, ItemAnimInfo>? = null
+        itemAnimInfoMap.forEach { nextEntry ->
             val positionStart = (previousEntry?.key ?: -1) +1
             val itemCount = nextEntry.key - positionStart
-            notifyItemRangeRemoved(positionStart, itemCount)
-            notifyItemRangeInserted(positionStart, itemCount)
+            if (itemCount > 0) {
+                notifyItemRangeRemoved(positionStart, itemCount)
+                notifyItemRangeInserted(positionStart, itemCount)
+            }
             previousEntry = nextEntry
         }
         // Process the "gap" from last animated item to the last item of the list.
         val positionStart = (previousEntry?.key ?: -1) +1
-        if (positionStart < this.itemCount) {
-            val itemCount = this.itemCount - positionStart
+        val lastCommonIndex = min(previousItemCount, this.itemCount)
+        if (positionStart < lastCommonIndex) {
+            val itemCount = lastCommonIndex - positionStart
             notifyItemRangeRemoved(positionStart, itemCount)
             notifyItemRangeInserted(positionStart, itemCount)
         }
@@ -162,7 +200,7 @@ interface CollapseAnimAdapter {
             notifyItemRangeRemoved(itemCount, previousItemCount - itemCount)
         } else if (itemCount > previousItemCount) {
             // Notify which tail items of the new list were inserted
-            notifyItemRangeInserted(itemCount, itemCount - previousItemCount)
+            notifyItemRangeInserted(previousItemCount, itemCount - previousItemCount)
         }
 
     }

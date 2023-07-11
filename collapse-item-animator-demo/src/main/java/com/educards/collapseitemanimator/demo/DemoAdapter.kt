@@ -20,12 +20,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.educards.collapseitemanimator.AnimInfo
-import com.educards.collapseitemanimator.AnimTargetState
+import com.educards.collapseitemanimator.ItemAnimInfo
+import com.educards.collapseitemanimator.ExpansionState
 import com.educards.collapseitemanimator.CollapseAnimAdapter
 import com.educards.collapseitemanimator.CollapseAnimFrameLayout
 import com.educards.collapseitemanimator.CollapseAnimViewHolder
-import com.educards.collapseitemanimator.CollapsedStateInfo
+import com.educards.collapseitemanimator.AnimInfo
 import java.util.TreeMap
 
 class DemoAdapter(
@@ -48,9 +48,9 @@ class DemoAdapter(
 
     private var data: List<String>? = null
 
-    override val animInfoMap = TreeMap<Int, AnimInfo>()
+    override val itemAnimInfoMap = TreeMap<Int, ItemAnimInfo>()
 
-    override var animTargetState: AnimTargetState? = null
+    override var expansionState: ExpansionState? = null
 
     override var previousItemCount = -1
 
@@ -63,7 +63,7 @@ class DemoAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        setPendingAnimInfo(holder, position)
+        onBindPostTransitionItemAnimInfo(holder, position)
         holder.textView.text = data?.get(position)
     }
 
@@ -75,20 +75,19 @@ class DemoAdapter(
         setHasStableIds(true)
     }
 
-    override fun getItemId(position: Int): Long {
-        return super<CollapseAnimAdapter>.getItemId(position)
-    }
+    override fun getItemId(position: Int) =
+        super<CollapseAnimAdapter>.getItemId(position)
 
     fun setData(
         data: List<String>,
-        animTargetState: AnimTargetState,
-        animInfoList: List<AnimInfo>?
+        animTargetState: ExpansionState,
+        animInfoList: List<ItemAnimInfo>?
     ) {
         notifyBeforeDataSet()
 
         this.data = data
-        this.animTargetState = animTargetState
-        setAnimInfo(animInfoList)
+        this.expansionState = animTargetState
+        setItemAnimInfo(animInfoList)
 
         notifyAfterDataSet()
     }
@@ -98,8 +97,8 @@ class DemoAdapter(
         override val textView: TextView,
     ) : RecyclerView.ViewHolder(rootView),
         CollapseAnimViewHolder {
-        override var animTargetState: AnimTargetState? = null
-        override var collapsedStateInfo: CollapsedStateInfo? = null
+        override var viewExpansionState: ExpansionState? = null
+        override var animInfo: AnimInfo? = null
     }
 
 }

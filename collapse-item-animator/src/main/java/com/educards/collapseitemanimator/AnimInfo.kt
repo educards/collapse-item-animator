@@ -16,31 +16,24 @@
 
 package com.educards.collapseitemanimator
 
+/**
+ * Data class providing the details of how exactly the
+ * collapse/expand animation should be performed.
+ *
+ * @see ItemAnimInfo
+ */
 data class AnimInfo(
 
-    val itemIdAfterTransition: Long,
+    /**
+     * Index of the first visible line of the animated [android.widget.TextView]
+     * in its collapsed state.
+     */
+    val collapsedStateVisibleFirstLine: Int,
 
     /**
-     * Index of the animated item
-     * from Adapter's point of view.
+     * Number of visible lines of the animated [android.widget.TextView]
+     * in its collapsed state.
      */
-    val itemIndexBeforeTransition: Int,
+    val collapsedStateVisibleLinesCount: Int
 
-    val itemIndexAfterTransition: Int,
-
-    /**
-     * Target animation state.
-     */
-    val animTargetState: AnimTargetState,
-
-    /**
-     * Animation details.
-     */
-    val collapsedStateInfo: CollapsedStateInfo
-
-) {
-
-    fun isItemMoved() =
-        itemIndexBeforeTransition != itemIndexAfterTransition
-
-}
+)

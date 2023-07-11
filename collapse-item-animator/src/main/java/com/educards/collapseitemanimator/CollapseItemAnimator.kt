@@ -16,14 +16,14 @@ class CollapseItemAnimator : DefaultItemAnimator() {
         changeFlags: Int,
         payloads: MutableList<Any>
     ): ItemHolderInfo {
-        return CollapseAnimHolderInfo().setFrom(viewHolder)
+        return CollapseAnimItemHolderInfo().setFrom(viewHolder)
     }
 
     override fun recordPostLayoutInformation(
         state: RecyclerView.State,
         viewHolder: RecyclerView.ViewHolder
     ): ItemHolderInfo {
-        return CollapseAnimHolderInfo().setFrom(viewHolder)
+        return CollapseAnimItemHolderInfo().setFrom(viewHolder)
     }
 
     override fun canReuseUpdatedViewHolder(viewHolder: RecyclerView.ViewHolder) =
@@ -42,12 +42,10 @@ class CollapseItemAnimator : DefaultItemAnimator() {
         postInfo: ItemHolderInfo
     ): Boolean {
 
-        if (preInfo is CollapseAnimHolderInfo && postInfo is CollapseAnimHolderInfo) {
+        if (preInfo is CollapseAnimItemHolderInfo && postInfo is CollapseAnimItemHolderInfo) {
 
-            val expanding = !preInfo.isExpanded() && postInfo.isExpanded()
-            val isCustomAnimated = preInfo.isExpanded() || postInfo.isExpanded()
-
-            if (isCustomAnimated) {
+            if (postInfo.isCustomAnimated()) {
+                val expanding = postInfo.isExpanded()
 
                 // Data discrepancy fail-fast checks
                 if (newHolder != oldHolder) {
@@ -70,8 +68,8 @@ class CollapseItemAnimator : DefaultItemAnimator() {
                 }
 
                 // reset animations
-                val oldAnimInfo = animatorMap[oldHolder]
-                oldAnimInfo?.animator?.cancel()
+                val oldAnimatorInfo = animatorMap[oldHolder]
+                oldAnimatorInfo?.animator?.cancel()
 
                 // set new post-reset view state
                 val deltaY = postInfo.top - preInfo.top - preResetTranslationY
@@ -93,16 +91,13 @@ class CollapseItemAnimator : DefaultItemAnimator() {
                 anim.duration = changeDuration
 
                 val animUpdateListener = ValueAnimator.AnimatorUpdateListener {
-
                     rootView.translationY = -deltaY * (1f - it.animatedFraction)
-
                     rootViewAnimData.animBitmapPhase =
                         if (expanding) {
                             preResetAnimBitmapPhase - it.animatedFraction * preResetAnimBitmapPhase
                         } else {
                             preResetAnimBitmapPhase + it.animatedFraction * (1f - preResetAnimBitmapPhase)
                         }
-
                     rootView.invalidate() // redraw animBitmap
                 }
 
@@ -125,9 +120,7 @@ class CollapseItemAnimator : DefaultItemAnimator() {
                         rootView.invalidate() // redraw view without animBitmap which we've just removed
 
                         dispatchChangeFinished(oldHolder, true)
-
                         animatorMap.remove(oldHolder)
-
                         if (animatorMap.isEmpty()) {
                             dispatchAnimationsFinished()
                         }
@@ -166,6 +159,9 @@ class CollapseItemAnimator : DefaultItemAnimator() {
         return super.isRunning() || animatorMap.isNotEmpty()
     }
 
+    // TODO Get rid of this redundant wrapper.
+    //      It was needed for composite animation when we wrapped
+    //      here multiple ongoing sub-animations.
     data class AnimatorInfo(
         val animator: ValueAnimator
     )

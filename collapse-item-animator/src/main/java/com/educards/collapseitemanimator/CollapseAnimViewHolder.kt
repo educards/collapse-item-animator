@@ -33,10 +33,10 @@ interface CollapseAnimViewHolder {
      */
     val textView: TextView
 
-    var animTargetState: AnimTargetState?
+    var viewExpansionState: ExpansionState?
 
-    var collapsedStateInfo: CollapsedStateInfo?
+    var animInfo: AnimInfo?
 
-    fun isCustomAnimated() = animTargetState != null
+    fun isCustomAnimated() = viewExpansionState != null
 
 }

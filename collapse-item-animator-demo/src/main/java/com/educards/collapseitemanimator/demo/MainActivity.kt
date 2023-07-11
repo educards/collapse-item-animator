@@ -20,9 +20,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.educards.collapseitemanimator.AnimTargetState
+import com.educards.collapseitemanimator.ExpansionState
+import com.educards.collapseitemanimator.ItemAnimInfo
 import com.educards.collapseitemanimator.AnimInfo
-import com.educards.collapseitemanimator.CollapsedStateInfo
 import com.educards.collapseitemanimator.CollapseItemAnimator
 import com.educards.collapseitemanimator.demo.databinding.ActivityMainBinding
 
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var adapter: DemoAdapter
 
-    private var previousAnimDirection: AnimTargetState? = null
+    private var previousAnimDirection: ExpansionState? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,12 +51,10 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.adapter = this.adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.itemAnimator = CollapseItemAnimator().apply {
-            if (DEBUG) {
-                changeDuration = DEBUG_ANIM_DURATION_MS
-                moveDuration = DEBUG_ANIM_DURATION_MS
-                removeDuration = DEBUG_ANIM_DURATION_MS
-                addDuration = DEBUG_ANIM_DURATION_MS
-            }
+            changeDuration = COLLAPSE_ANIM_DURATION_MS
+            moveDuration = COLLAPSE_ANIM_DURATION_MS
+            removeDuration = COLLAPSE_ANIM_DURATION_MS
+            addDuration = COLLAPSE_ANIM_DURATION_MS
         }
     }
 
@@ -72,8 +70,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateSwitchButtonText(animDir: AnimTargetState) {
-        binding.switchButton.text = if (animDir == AnimTargetState.EXPANDED) "Expand" else "Collapse"
+    private fun updateSwitchButtonText(animDir: ExpansionState) {
+        binding.switchButton.text = if (animDir == ExpansionState.EXPANDED) "Expand" else "Collapse"
     }
 
     private fun switchAdapterData(animate: Boolean) {
@@ -84,16 +82,16 @@ class MainActivity : AppCompatActivity() {
 
         // generate and set data
         val nextData = when (nextAnimDirection) {
-            AnimTargetState.EXPANDED -> generateExpandedSampleData()
-            AnimTargetState.COLLAPSED -> generateCollapsedSampleData()
+            ExpansionState.EXPANDED -> generateExpandedSampleData()
+            ExpansionState.COLLAPSED -> generateCollapsedSampleData()
         }
         val animItemIndexBefore = when (nextAnimDirection) {
-            AnimTargetState.EXPANDED -> 1
-            AnimTargetState.COLLAPSED -> 3
+            ExpansionState.EXPANDED -> 1
+            ExpansionState.COLLAPSED -> 3
         }
         val animItemIndexAfter = when (nextAnimDirection) {
-            AnimTargetState.EXPANDED -> 3
-            AnimTargetState.COLLAPSED -> 1
+            ExpansionState.EXPANDED -> 3
+            ExpansionState.COLLAPSED -> 1
         }
 
         if (animate) {
@@ -101,12 +99,12 @@ class MainActivity : AppCompatActivity() {
                 nextData,
                 nextAnimDirection,
                 listOf(
-                    AnimInfo(
-                        itemIdAfterTransition = adapter.getItemId(animItemIndexBefore),
+                    ItemAnimInfo(
+                        itemId = adapter.getItemId(animItemIndexBefore),
                         itemIndexBeforeTransition = animItemIndexBefore,
                         itemIndexAfterTransition = animItemIndexAfter,
-                        animTargetState = nextAnimDirection,
-                        collapsedStateInfo = CollapsedStateInfo(1, 2)
+                        itemTargetExpansionState = nextAnimDirection,
+                        animInfo = AnimInfo(1, 2)
                     )
                 )
             )
@@ -116,8 +114,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getOppositeAnimDirection(animDirection: AnimTargetState?) =
-        animDirection?.getOpposite() ?: AnimTargetState.EXPANDED
+    private fun getOppositeAnimDirection(animDirection: ExpansionState?) =
+        animDirection?.getOpposite() ?: ExpansionState.EXPANDED
 
     private fun generateCollapsedSampleData() = listOf(
 
@@ -179,8 +177,7 @@ class MainActivity : AppCompatActivity() {
         )
 
     companion object {
-        private const val DEBUG = true
-        private const val DEBUG_ANIM_DURATION_MS = 450L
+        private const val COLLAPSE_ANIM_DURATION_MS = 450L
     }
 
 }
