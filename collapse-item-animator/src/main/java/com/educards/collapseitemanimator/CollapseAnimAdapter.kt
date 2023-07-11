@@ -12,7 +12,7 @@ import java.util.SortedMap
  * @see setItemAnimInfo
  * @see onBindPreTransitionItemAnimInfo
  * @see onBindPostTransitionItemAnimInfo
- * @see notifyBeforeDataSet
+ * @see onPreData
  * @see notifyAfterDataSet
  */
 interface CollapseAnimAdapter {
@@ -34,7 +34,7 @@ interface CollapseAnimAdapter {
      *      * all items are collapsed (few of them with collapse animation)
      *      See [README] for details.
      */
-    var expansionState: ExpansionState?
+    var dataExpansionState: ExpansionState?
 
     var previousItemCount: Int
 
@@ -128,17 +128,17 @@ interface CollapseAnimAdapter {
     fun findViewHolderForAdapterPosition(position: Int): ViewHolder?
 
     fun getItemId(position: Int) =
-        expansionState?.let { animTargetState ->
+        dataExpansionState?.let { expansionState ->
             itemAnimInfoMap[position]?.itemId
-                ?: getItemIdStaticItems(animTargetState, position)
-        } ?: error("'animTargetState' undefined")
+                ?: getItemIdStaticItems(expansionState, position)
+        } ?: error("'expansionState' undefined, did you invoke 'onPreData'?")
 
     /**
      * Returns ID of those items, which are not being
      * animated during collapse-expand transition.
      */
-    fun getItemIdStaticItems(animTargetState: ExpansionState, position: Int) =
-        when (animTargetState) {
+    fun getItemIdStaticItems(expansionState: ExpansionState, position: Int) =
+        when (expansionState) {
             ExpansionState.EXPANDED -> {
                 position.toLong()
             }
@@ -147,13 +147,16 @@ interface CollapseAnimAdapter {
             }
         }
 
-    fun notifyBeforeDataSet() {
+    fun onPreData(dataExpansionState: ExpansionState) {
         this as Adapter<*>
-        previousItemCount = itemCount
+        this.previousItemCount = itemCount
+        this.dataExpansionState = dataExpansionState
     }
 
     fun notifyAfterDataSet() {
         this as Adapter<*>
+
+        checkAnimSetup()
 
         // We can't just call notifyDataSetChanged() here,
         // because the expand/collapse animation would not be triggered correctly.
@@ -203,6 +206,27 @@ interface CollapseAnimAdapter {
             notifyItemRangeInserted(previousItemCount, itemCount - previousItemCount)
         }
 
+    }
+
+    /**
+     * Checks animation metadata for misconfiguration (fail-fast).
+     */
+    private fun checkAnimSetup() {
+        if (dataExpansionState == null) {
+            error("Adapter's dataExpansionState is required to be set.")
+        }
+        itemAnimInfoMap.forEach { entry ->
+            if (entry.value.itemTargetExpansionState != dataExpansionState) {
+                error(
+                    "ExpansionState of all Adapter items is by design " +
+                            "required to be homogenous. See README file for details [" +
+                            "adapter.expansionState: $dataExpansionState, " +
+                            "animInfo.itemTargetExpansionState: ${entry.value.itemTargetExpansionState}, " +
+                            "animInfo.itemIndexBeforeTransition: ${entry.value.itemIndexBeforeTransition}, " +
+                            "animInfo.itemIndexAfterTransition: ${entry.value.itemIndexAfterTransition}]"
+                )
+            }
+        }
     }
 
 }

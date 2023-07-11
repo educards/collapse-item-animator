@@ -77,19 +77,19 @@ class MainActivity : AppCompatActivity() {
     private fun switchAdapterData(animate: Boolean) {
 
         // detect new state (switch)
-        val nextAnimDirection = getOppositeAnimDirection(previousAnimDirection)
-        previousAnimDirection = nextAnimDirection
+        val nextDataExpansionState = getOppositeAnimDirection(previousAnimDirection)
+        previousAnimDirection = nextDataExpansionState
 
         // generate and set data
-        val nextData = when (nextAnimDirection) {
+        val nextData = when (nextDataExpansionState) {
             ExpansionState.EXPANDED -> generateExpandedSampleData()
             ExpansionState.COLLAPSED -> generateCollapsedSampleData()
         }
-        val animItemIndexBefore = when (nextAnimDirection) {
+        val animItemIndexBefore = when (nextDataExpansionState) {
             ExpansionState.EXPANDED -> 1
             ExpansionState.COLLAPSED -> 3
         }
-        val animItemIndexAfter = when (nextAnimDirection) {
+        val animItemIndexAfter = when (nextDataExpansionState) {
             ExpansionState.EXPANDED -> 3
             ExpansionState.COLLAPSED -> 1
         }
@@ -97,20 +97,20 @@ class MainActivity : AppCompatActivity() {
         if (animate) {
             adapter.setData(
                 nextData,
-                nextAnimDirection,
+                nextDataExpansionState,
                 listOf(
                     ItemAnimInfo(
                         itemId = adapter.getItemId(animItemIndexBefore),
                         itemIndexBeforeTransition = animItemIndexBefore,
                         itemIndexAfterTransition = animItemIndexAfter,
-                        itemTargetExpansionState = nextAnimDirection,
+                        itemTargetExpansionState = nextDataExpansionState,
                         animInfo = AnimInfo(1, 2)
                     )
                 )
             )
 
         } else {
-            adapter.setData(nextData, nextAnimDirection, null)
+            adapter.setData(nextData, nextDataExpansionState, null)
         }
     }
 

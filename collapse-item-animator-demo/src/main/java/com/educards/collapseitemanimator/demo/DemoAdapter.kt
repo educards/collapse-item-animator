@@ -50,7 +50,7 @@ class DemoAdapter(
 
     override val itemAnimInfoMap = TreeMap<Int, ItemAnimInfo>()
 
-    override var expansionState: ExpansionState? = null
+    override var dataExpansionState: ExpansionState? = null
 
     override var previousItemCount = -1
 
@@ -80,15 +80,12 @@ class DemoAdapter(
 
     fun setData(
         data: List<String>,
-        animTargetState: ExpansionState,
+        dataExpansionState: ExpansionState,
         animInfoList: List<ItemAnimInfo>?
     ) {
-        notifyBeforeDataSet()
-
+        onPreData(dataExpansionState)
         this.data = data
-        this.expansionState = animTargetState
         setItemAnimInfo(animInfoList)
-
         notifyAfterDataSet()
     }
 
