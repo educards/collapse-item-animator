@@ -21,6 +21,14 @@ class CollapseAnimFrameLayout @JvmOverloads constructor(
 
     private val collapseAnimViewData = CollapseAnimView.CollapseAnimViewData()
 
+    override var collapseAnimClipOffsetY = 0f
+
+    init {
+        val a = context.obtainStyledAttributes(attrs, R.styleable.CollapseAnimView)
+        collapseAnimClipOffsetY = a.getDimension(R.styleable.CollapseAnimView_collapseAnimClipOffsetY, 0f)
+        a.recycle()
+    }
+
     override fun getCollapseAnimViewData(): CollapseAnimView.CollapseAnimViewData {
         return collapseAnimViewData
     }

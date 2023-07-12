@@ -52,6 +52,30 @@ Custom [RecyclerView.ItemAnimator](https://developer.android.com/reference/andro
             android:layout_height="match_parent" />
   ```
 
+* Define `collapseAnimClipOffsetY` (optional).
+  Collapse animation is performed by "clipping" and positioning the `Bitmap` of list item view
+  in its expanded state. If your list item have vertical paddings/margins set, use the `collapseAnimClipOffsetY`
+  to position the clipping window properly with respect to these paddings/margins.
+  Value of `collapseAnimClipOffsetY` should match the sum of all vertical paddings/margins.
+  ```
+        <com.educards.collapseitemanimator.CollapseAnimFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:background="@android:color/transparent"
+            app:collapseAnimClipOffsetY="@dimen/list_item_vertical_padding"    <====
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/text_view"
+                android:text="text"
+                android:ellipsize="end"
+                android:paddingVertical="@dimen/list_item_vertical_padding"    <====
+                android:gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.educards.collapseitemanimator.CollapseAnimFrameLayout>
+  ```
+
 ## Design constraints
 
 ### Support of homogenous ExpansionState

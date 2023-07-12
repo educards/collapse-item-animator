@@ -47,15 +47,18 @@ class CollapseAnimItemHolderInfo : ItemHolderInfo() {
                     // render bitmap
                     animBitmap = renderToNewBitmap(holder)
 
+                    val layout = holder.textView.layout
+
                     // compute Y of the first line visible in collapsed state
-                    val firstLineY = holder.textView.layout.getLineTop(animInfo.collapsedStateVisibleFirstLine).toFloat()
+                    val firstLineY =
+                        (layout.getLineTop(animInfo.collapsedStateVisibleFirstLine) + holder.textView.layout.topPadding).toFloat()
                     animBitmapCollapsedFirstLineY = firstLineY
 
                     // compute height of collapsed view
-                    val lastLineY = holder.textView.layout.getLineBottom(
+                    val lastLineY = (layout.getLineBottom(
                         animInfo.collapsedStateVisibleFirstLine +
                                 animInfo.collapsedStateVisibleLinesCount - 1
-                    ).toFloat()
+                    ) + layout.bottomPadding).toFloat()
                     animBitmapCollapsedHeight = lastLineY - firstLineY
 
                     // continue temporarily switched off anim

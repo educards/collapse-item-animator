@@ -5,6 +5,14 @@ import android.graphics.Canvas
 
 interface CollapseAnimView {
 
+    /**
+     * Collapse animation is performed by "clipping" and positioning the `Bitmap` of list item view
+     * in its expanded state. If your list item have vertical paddings/margins set the use this attribute
+     * to position the clipping window properly with respect to these paddings/margins.
+     * Value of [collapseAnimClipOffsetY] should match the sum of all vertical paddings/margins.
+     */
+    var collapseAnimClipOffsetY: Float
+
     fun getCollapseAnimViewData(): CollapseAnimViewData
 
     fun invokeDefaultOnDraw(canvas: Canvas) =
@@ -21,9 +29,9 @@ interface CollapseAnimView {
 
         val collapsedDeltaHeight = animBitmap.height - animData.animBitmapCollapsedHeight
         canvas.clipRect(0f,
-            0f,
+            collapseAnimClipOffsetY, // TODO Weight with 'animBitmapPhase'?
             animBitmap.width.toFloat(),
-            animBitmap.height.toFloat() - collapsedDeltaHeight * animData.animBitmapPhase)
+            collapseAnimClipOffsetY + animBitmap.height.toFloat() - collapsedDeltaHeight * animData.animBitmapPhase)
 
         canvas.drawBitmap(
             animBitmap,
