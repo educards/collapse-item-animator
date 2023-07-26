@@ -76,9 +76,21 @@ Custom [RecyclerView.ItemAnimator](https://developer.android.com/reference/andro
         </com.educards.collapseitemanimator.CollapseAnimFrameLayout>
   ```
 
-## Design constraints
+## Design Features
 
-### Support of homogenous ExpansionState
+### Streaming Support
+`CollapseItemAnimator` supports streaming.
+That means that to execute the animations only a specific subset of metadata
+needs to be provided to do all the computations
+(for details see [StreamingNotifyExecutor](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/StreamingNotifyExecutor.kt)).
+
+Other default approaches (such as [DiffUtil](https://developer.android.com/reference/androidx/recyclerview/widget/DiffUtil))
+needs to traverse data of both pre- and post-transition lists in order
+to properly animate changes which is clearly a problem for streaming architectures.
+
+## Design Constraints
+
+### Homogenous ExpansionState
 
 The current design of `CollapseAnimAdapter` supports 2 states (`ExpansionState`s) of its data:
 1. all items are expanded
