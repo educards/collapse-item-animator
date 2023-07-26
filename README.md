@@ -5,6 +5,10 @@
 
 Custom [RecyclerView.ItemAnimator](https://developer.android.com/reference/androidx/recyclerview/widget/RecyclerView.ItemAnimator) based on `DefaultItemAnimator`.
 
+![](collapse-item-animator-demo/examples/test-case-a.gif)
+![](collapse-item-animator-demo/examples/test-case-d.gif)
+![](collapse-item-animator-demo/examples/test-case-e.gif)
+
 ## Integration Steps
 
 (For working example see [collapse-item-animator-demo](https://github.com/educards/collapse-item-animator/tree/main/collapse-item-animator-demo).)
