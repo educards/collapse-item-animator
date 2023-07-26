@@ -35,15 +35,15 @@ open class DefaultStreamingNotifyExecutor: StreamingNotifyExecutor {
         //      Prevents IndexOutOfBoundsException: Inconsistency detected. Invalid view holder adapter positionViewHolder
         //      (https://github.com/educards/collapse-item-animator/issues/6)
 
-        // The algorithm requires `itemAnimInfoList` to be sorted by [ItemAnimInfo.itemIndexBeforeTransition] in ascending order
+        // The algorithm requires `itemAnimInfoList` to be sorted by [ItemAnimInfo.itemIndexPreTransition] in ascending order
         val itemAnimInfoList = itemAnimInfoMap.values.toMutableList()
-        itemAnimInfoList.sortBy { it.itemIndexBeforeTransition }
+        itemAnimInfoList.sortBy { it.itemIndexPreTransition }
 
         // scale
         val scaleRatio = currentItemCount.toDouble() / previousItemCount.toDouble()
         val scaledIndices = mutableListOf<Int>()
         itemAnimInfoList.forEach {
-            val newScaledPreTransitionIndex = (it.itemIndexBeforeTransition * scaleRatio).roundToInt()
+            val newScaledPreTransitionIndex = (it.itemIndexPreTransition * scaleRatio).roundToInt()
             shiftIfNeededAndAppend(scaledIndices, newScaledPreTransitionIndex, currentItemCount - 1)
         }
 
@@ -58,8 +58,8 @@ open class DefaultStreamingNotifyExecutor: StreamingNotifyExecutor {
         for (i in 0..itemAnimInfoList.lastIndex) {
 
             // notify remove
-            notifyRemoveIfNeeded(adapter, previousItemIndex, itemAnimInfoList[i].itemIndexBeforeTransition, itemIndexDelta)
-            previousItemIndex = itemAnimInfoList[i].itemIndexBeforeTransition
+            notifyRemoveIfNeeded(adapter, previousItemIndex, itemAnimInfoList[i].itemIndexPreTransition, itemIndexDelta)
+            previousItemIndex = itemAnimInfoList[i].itemIndexPreTransition
             // notify insert
             notifyInsertIfNeeded(adapter, previousScaledItemIndex, scaledIndices[i])
             previousScaledItemIndex = scaledIndices[i]
@@ -74,7 +74,7 @@ open class DefaultStreamingNotifyExecutor: StreamingNotifyExecutor {
         notifyInsertIfNeeded(adapter, previousScaledItemIndex, currentItemCount)
 
         // compute moves
-        val targetMoveIndices = itemAnimInfoList.map { it.itemIndexAfterTransition }.toMutableList()
+        val targetMoveIndices = itemAnimInfoList.map { it.itemIndexPostTransition }.toMutableList()
         for (i in 0..targetMoveIndices.lastIndex) {
             for (j in (i+1)..targetMoveIndices.lastIndex) {
                 val currentFrom = scaledIndices[i]
@@ -114,7 +114,7 @@ open class DefaultStreamingNotifyExecutor: StreamingNotifyExecutor {
         } else {
             overviewOfShiftedIndices.append(" | ")
             itemAnimInfoList.forEachIndexed { index, itemAnimInfo ->
-                overviewOfShiftedIndices.append("${itemAnimInfo.itemIndexBeforeTransition} -> ${scaledIndices[index]}")
+                overviewOfShiftedIndices.append("${itemAnimInfo.itemIndexPreTransition} -> ${scaledIndices[index]}")
                 overviewOfShiftedIndices.append(" | ")
             }
         }

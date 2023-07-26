@@ -36,12 +36,12 @@ data class ItemAnimInfo(
     /**
      * Index of the animated item (from Adapter's point of view) before the transition.
      */
-    val itemIndexBeforeTransition: Int,
+    val itemIndexPreTransition: Int,
 
     /**
      * Index of the animated item (from Adapter's point of view) after the transition.
      */
-    val itemIndexAfterTransition: Int,
+    val itemIndexPostTransition: Int,
 
     /**
      * Target [ExpansionState] of the animation.

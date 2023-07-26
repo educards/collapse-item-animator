@@ -63,8 +63,8 @@ abstract class TestCaseController {
             val animInfoList = getItemAnimInfoList().map {
                 ItemAnimInfo(
                     itemId = adapter.getItemId(if (nextDataExpansionState == ExpansionState.EXPANDED) it.animItemCollapsedIndex else it.animItemExpandedIndex),
-                    itemIndexBeforeTransition = if (nextDataExpansionState == ExpansionState.EXPANDED) it.animItemCollapsedIndex else it.animItemExpandedIndex,
-                    itemIndexAfterTransition = if (nextDataExpansionState == ExpansionState.EXPANDED) it.animItemExpandedIndex else it.animItemCollapsedIndex,
+                    itemIndexPreTransition = if (nextDataExpansionState == ExpansionState.EXPANDED) it.animItemCollapsedIndex else it.animItemExpandedIndex,
+                    itemIndexPostTransition = if (nextDataExpansionState == ExpansionState.EXPANDED) it.animItemExpandedIndex else it.animItemCollapsedIndex,
                     itemTargetExpansionState = nextDataExpansionState,
                     animInfo = AnimInfo(it.animItemCollapsedVisibleFirstLine, it.animItemCollapsedVisibleLinesCount)
                 )

@@ -49,8 +49,8 @@ interface CollapseAnimAdapter {
      * The pre-transition setup of the view is done in [onBindPreTransitionItemAnimInfo], which
      * is invoked before taking "snapshot" of pre-transition view state ([CollapseItemAnimator.recordPreLayoutInformation]).
      */
-    fun onBindPostTransitionItemAnimInfo(holder: ViewHolder, positionAfterTransition: Int) {
-        val itemAnimInfo = itemAnimInfo[positionAfterTransition]
+    fun onBindPostTransitionItemAnimInfo(holder: ViewHolder, positionPostTransition: Int) {
+        val itemAnimInfo = itemAnimInfo[positionPostTransition]
         onBindAnimInfo(holder, itemAnimInfo?.itemTargetExpansionState, itemAnimInfo?.animInfo)
     }
 
@@ -87,7 +87,7 @@ interface CollapseAnimAdapter {
             // "pre-transition" setup
             onBindPreTransitionItemAnimInfo(itemAnimInfo)
             // "transition" & "post-transition" setup
-            this.itemAnimInfo[itemAnimInfo.itemIndexAfterTransition] = itemAnimInfo
+            this.itemAnimInfo[itemAnimInfo.itemIndexPostTransition] = itemAnimInfo
         }
     }
 
@@ -102,7 +102,7 @@ interface CollapseAnimAdapter {
      * prior to taking "snapshot" of its post-transition state ([CollapseItemAnimator.recordPostLayoutInformation]).
      */
     private fun onBindPreTransitionItemAnimInfo(itemAnimInfo: ItemAnimInfo) {
-        val currentViewHolder = findViewHolderForAdapterPosition(itemAnimInfo.itemIndexBeforeTransition)
+        val currentViewHolder = findViewHolderForAdapterPosition(itemAnimInfo.itemIndexPreTransition)
         if (currentViewHolder is CollapseAnimViewHolder) {
 
             // This method is invoked in pre-animation phase, therefore
@@ -175,8 +175,8 @@ interface CollapseAnimAdapter {
                             "required to be homogenous. See README file for details [" +
                             "adapter.expansionState: $dataExpansionState, " +
                             "animInfo.itemTargetExpansionState: ${entry.value.itemTargetExpansionState}, " +
-                            "animInfo.itemIndexBeforeTransition: ${entry.value.itemIndexBeforeTransition}, " +
-                            "animInfo.itemIndexAfterTransition: ${entry.value.itemIndexAfterTransition}]"
+                            "animInfo.itemIndexPreTransition: ${entry.value.itemIndexPreTransition}, " +
+                            "animInfo.itemIndexPostTransition: ${entry.value.itemIndexPostTransition}]"
                 )
             }
         }
