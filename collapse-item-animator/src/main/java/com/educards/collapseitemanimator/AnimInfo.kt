@@ -17,10 +17,11 @@
 package com.educards.collapseitemanimator
 
 /**
- * Data class providing the details of how exactly the
- * collapse/expand animation should be performed.
+ * Data class providing the details of how exactly
+ * a specific collapse/expand animation should be performed.
  *
- * @see ItemAnimInfo
+ * This class gives no details on which particular item
+ * is animated (see [ItemAnimInfo]).
  */
 data class AnimInfo(
 

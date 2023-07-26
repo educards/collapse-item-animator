@@ -84,9 +84,9 @@ That means that to execute the animations only a specific subset of metadata
 needs to be provided to do all the computations
 (for details see [StreamingNotifyExecutor](https://github.com/educards/collapse-item-animator/blob/main/collapse-item-animator/src/main/java/com/educards/collapseitemanimator/StreamingNotifyExecutor.kt)).
 
-Other default approaches (such as [DiffUtil](https://developer.android.com/reference/androidx/recyclerview/widget/DiffUtil))
+Other approaches (such as built-in [DiffUtil](https://developer.android.com/reference/androidx/recyclerview/widget/DiffUtil))
 needs to traverse data of both pre- and post-transition lists in order
-to properly animate changes which is clearly a problem for streaming architectures.
+to properly animate changes which is clearly a problem for streaming design pattern.
 
 ## Design Constraints
 
