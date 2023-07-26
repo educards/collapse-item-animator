@@ -3,7 +3,6 @@ package com.educards.collapseitemanimator
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import java.lang.Integer.min
 import java.util.SortedMap
 
 /**
@@ -19,11 +18,12 @@ interface CollapseAnimAdapter {
 
     /**
      * Animation details of animated items.
-     * * `key`: position of item after transition (post-transition phase)
+     * * `key`: target position of item after transition (post-transition phase)
+     *          regardless of the transition direction (expanded <-> collapsed)
      * * `value`: [ItemAnimInfo]
      * @see setItemAnimInfo
      */
-    val itemAnimInfoMap: SortedMap<Int, ItemAnimInfo>
+    val itemAnimInfo: SortedMap<Int, ItemAnimInfo>
 
     /**
      * Current [ExpansionState] of the whole [Adapter] (of all its items).
@@ -38,6 +38,8 @@ interface CollapseAnimAdapter {
 
     var previousItemCount: Int
 
+    var streamingNotifyExecutor: StreamingNotifyExecutor
+
     /**
      * Invoked from `onBindViewHolder` to setup view (wrapped by [holder])
      * to it's post-transition state.
@@ -48,7 +50,7 @@ interface CollapseAnimAdapter {
      * is invoked before taking "snapshot" of pre-transition view state ([CollapseItemAnimator.recordPreLayoutInformation]).
      */
     fun onBindPostTransitionItemAnimInfo(holder: ViewHolder, positionAfterTransition: Int) {
-        val itemAnimInfo = itemAnimInfoMap[positionAfterTransition]
+        val itemAnimInfo = itemAnimInfo[positionAfterTransition]
         onBindAnimInfo(holder, itemAnimInfo?.itemTargetExpansionState, itemAnimInfo?.animInfo)
     }
 
@@ -80,12 +82,12 @@ interface CollapseAnimAdapter {
      * Invoked immediately after new [Adapter]'s data are provided to setup animation.
      */
     fun setItemAnimInfo(itemAnimInfoList: List<ItemAnimInfo>?) {
-        itemAnimInfoMap.clear()
+        itemAnimInfo.clear()
         itemAnimInfoList?.forEach { itemAnimInfo ->
             // "pre-transition" setup
             onBindPreTransitionItemAnimInfo(itemAnimInfo)
             // "transition" & "post-transition" setup
-            itemAnimInfoMap[itemAnimInfo.itemIndexAfterTransition] = itemAnimInfo
+            this.itemAnimInfo[itemAnimInfo.itemIndexAfterTransition] = itemAnimInfo
         }
     }
 
@@ -129,7 +131,7 @@ interface CollapseAnimAdapter {
 
     fun getItemId(position: Int) =
         dataExpansionState?.let { expansionState ->
-            itemAnimInfoMap[position]?.itemId
+            itemAnimInfo[position]?.itemId
                 ?: getItemIdStaticItems(expansionState, position)
         } ?: error("'expansionState' undefined, did you invoke 'onPreData'?")
 
@@ -155,57 +157,8 @@ interface CollapseAnimAdapter {
 
     fun notifyAfterDataSet() {
         this as Adapter<*>
-
         checkAnimSetup()
-
-        // We can't just call notifyDataSetChanged() here,
-        // because the expand/collapse animation would not be triggered correctly.
-        // Discussion: https://stackoverflow.com/a/76234207/915756
-
-        // First take care of animated collapse/expand items.
-        // We want to deal with them first, because they are transformed in a way which doesn't change
-        // total items count (animated items are never removed or inserted, they can be only moved).
-        // Because of this approach we can later deal with 'remove'/'insert' sequentially
-        // by simply processing all the "gaps" between animated items.
-        itemAnimInfoMap.forEach {
-            val animInfo = it.value
-            notifyItemChanged(animInfo.itemIndexBeforeTransition)
-            if (animInfo.isItemMoved()) {
-                notifyItemMoved(
-                    animInfo.itemIndexBeforeTransition,
-                    animInfo.itemIndexAfterTransition
-                )
-            }
-        }
-
-        // Now walk through the "gaps" between animated items.
-        var previousEntry: Map.Entry<Int, ItemAnimInfo>? = null
-        itemAnimInfoMap.forEach { nextEntry ->
-            val positionStart = (previousEntry?.key ?: -1) +1
-            val itemCount = nextEntry.key - positionStart
-            if (itemCount > 0) {
-                notifyItemRangeRemoved(positionStart, itemCount)
-                notifyItemRangeInserted(positionStart, itemCount)
-            }
-            previousEntry = nextEntry
-        }
-        // Process the "gap" from last animated item to the last item of the list.
-        val positionStart = (previousEntry?.key ?: -1) +1
-        val lastCommonIndex = min(previousItemCount, this.itemCount)
-        if (positionStart < lastCommonIndex) {
-            val itemCount = lastCommonIndex - positionStart
-            notifyItemRangeRemoved(positionStart, itemCount)
-            notifyItemRangeInserted(positionStart, itemCount)
-        }
-
-        if (previousItemCount > itemCount) {
-            // Notify which tail items of the old list were removed
-            notifyItemRangeRemoved(itemCount, previousItemCount - itemCount)
-        } else if (itemCount > previousItemCount) {
-            // Notify which tail items of the new list were inserted
-            notifyItemRangeInserted(previousItemCount, itemCount - previousItemCount)
-        }
-
+        streamingNotifyExecutor.doNotify(this, itemAnimInfo, previousItemCount, itemCount)
     }
 
     /**
@@ -215,7 +168,7 @@ interface CollapseAnimAdapter {
         if (dataExpansionState == null) {
             error("Adapter's dataExpansionState is required to be set.")
         }
-        itemAnimInfoMap.forEach { entry ->
+        itemAnimInfo.forEach { entry ->
             if (entry.value.itemTargetExpansionState != dataExpansionState) {
                 error(
                     "ExpansionState of all Adapter items is by design " +
