@@ -5,9 +5,9 @@
 
 Custom [RecyclerView.ItemAnimator](https://developer.android.com/reference/androidx/recyclerview/widget/RecyclerView.ItemAnimator) based on `DefaultItemAnimator`.
 
-![](collapse-item-animator-demo/examples/test-case-a.gif)
-![](collapse-item-animator-demo/examples/test-case-d.gif)
-![](collapse-item-animator-demo/examples/test-case-e.gif)
+![](collapse-item-animator-demo/examples/test-case-a.gif){: width="20%"}
+![](collapse-item-animator-demo/examples/test-case-d.gif){: width="20%"}
+![](collapse-item-animator-demo/examples/test-case-e.gif){: width="20%"}
 
 ## Integration Steps
 
