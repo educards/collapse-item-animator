@@ -53,9 +53,4 @@ data class ItemAnimInfo(
      */
     val animInfo: AnimInfo
 
-) {
-
-    fun isItemMoved() =
-        itemIndexBeforeTransition != itemIndexAfterTransition
-
-}
+)
