@@ -20,7 +20,7 @@ import android.view.View
 import com.educards.collapseitemanimator.AnimInfo
 import com.educards.collapseitemanimator.ExpansionState
 import com.educards.collapseitemanimator.ItemAnimInfo
-import com.educards.collapseitemanimator.DefaultStreamingNotifyExecutor
+import com.educards.collapseitemanimator.StreamingNotifyExecutor
 
 abstract class TestCaseController {
 
@@ -28,7 +28,12 @@ abstract class TestCaseController {
 
     val viewId = View.generateViewId()
 
-    abstract val streamingNotifyExecutor: DefaultStreamingNotifyExecutor
+    /**
+     * A [StreamingNotifyExecutor] which executes
+     * hardwired sequence of `notify*` invocations
+     * for sake of testing a test-case scenario.
+     */
+    abstract val hardwiredNotifyExecutor: StreamingNotifyExecutor
 
     private var previousAnimDirection: ExpansionState? = null
 
@@ -68,12 +73,11 @@ abstract class TestCaseController {
             adapter.setData(
                 nextData,
                 nextDataExpansionState,
-                animInfoList,
-                streamingNotifyExecutor
+                animInfoList
             )
 
         } else {
-            adapter.setData(nextData, nextDataExpansionState, null, DefaultStreamingNotifyExecutor())
+            adapter.setData(nextData, nextDataExpansionState, null)
         }
 
     }

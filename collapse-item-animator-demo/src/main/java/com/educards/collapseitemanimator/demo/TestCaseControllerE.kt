@@ -16,36 +16,44 @@
 
 package com.educards.collapseitemanimator.demo
 
+import androidx.recyclerview.widget.RecyclerView
 import com.educards.collapseitemanimator.DefaultStreamingNotifyExecutor
+import com.educards.collapseitemanimator.ItemAnimInfo
 
 class TestCaseControllerE : TestCaseController() {
 
     override val testCaseName = "E"
 
-    override val streamingNotifyExecutor = DefaultStreamingNotifyExecutor()
-
-//    override val streamingNotifyExecutor = object : NotifyHelper() {
-//        override fun notifyAfterDataSet(
-//            adapter: RecyclerView.Adapter<*>,
-//            itemAnimInfoMap: Map<Int, ItemAnimInfo>,
-//            previousItemCount: Int,
-//            currentItemCount: Int
-//        ) {
-//            if (currentItemCount == 3) {
-//                adapter.notifyItemRangeRemoved(0, 2)
-//                adapter.notifyItemChanged(0)
-//                adapter.notifyItemRangeRemoved(1, 1)
-//                adapter.notifyItemChanged(1)
-//                adapter.notifyItemRangeRemoved(2, 1)
-//                adapter.notifyItemChanged(2)
-//                adapter.notifyItemMoved(0, 2)
-//                adapter.notifyItemMoved(0, 2)
-//                //adapter.notifyItemMoved(1, 0)
-//            } else {
-//                super.notifyAfterDataSet(adapter, itemAnimInfoMap, previousItemCount, currentItemCount)
-//            }
-//        }
-//    }
+    override val hardwiredNotifyExecutor = object : DefaultStreamingNotifyExecutor() {
+        override fun doNotify(
+            adapter: RecyclerView.Adapter<*>,
+            itemAnimInfoMap: Map<Int, ItemAnimInfo>,
+            previousItemCount: Int,
+            currentItemCount: Int
+        ) {
+            if (previousItemCount <= 0) {
+                super.doNotify(adapter, itemAnimInfoMap, previousItemCount, currentItemCount)
+            } else if (previousItemCount > currentItemCount) {
+                adapter.notifyItemRangeRemoved(0, 2)
+                adapter.notifyItemChanged(0)
+                adapter.notifyItemRangeRemoved(1, 1)
+                adapter.notifyItemChanged(1)
+                adapter.notifyItemRangeRemoved(2, 1)
+                adapter.notifyItemChanged(2)
+                adapter.notifyItemMoved(0, 2)
+                adapter.notifyItemMoved(0, 2)
+            } else {
+                adapter.notifyItemChanged(0)
+                adapter.notifyItemRangeInserted(1, 1)
+                adapter.notifyItemChanged(2)
+                adapter.notifyItemRangeInserted(3, 2)
+                adapter.notifyItemChanged(5)
+                adapter.notifyItemRangeInserted(6, 1)
+                adapter.notifyItemMoved(0, 6)
+                adapter.notifyItemMoved(1, 2)
+            }
+        }
+    }
 
     override fun getItemAnimInfoList() = listOf(
         ItemAnimTestInfo(0, 6, 1, 1),

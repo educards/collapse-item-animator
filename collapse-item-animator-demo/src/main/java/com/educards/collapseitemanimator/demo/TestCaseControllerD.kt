@@ -16,13 +16,38 @@
 
 package com.educards.collapseitemanimator.demo
 
+import androidx.recyclerview.widget.RecyclerView
 import com.educards.collapseitemanimator.DefaultStreamingNotifyExecutor
+import com.educards.collapseitemanimator.ItemAnimInfo
 
 class TestCaseControllerD : TestCaseController() {
 
     override val testCaseName = "D"
 
-    override val streamingNotifyExecutor = DefaultStreamingNotifyExecutor()
+    override val hardwiredNotifyExecutor = object : DefaultStreamingNotifyExecutor() {
+        override fun doNotify(
+            adapter: RecyclerView.Adapter<*>,
+            itemAnimInfoMap: Map<Int, ItemAnimInfo>,
+            previousItemCount: Int,
+            currentItemCount: Int
+        ) {
+            if (previousItemCount <= 0) {
+                super.doNotify(adapter, itemAnimInfoMap, previousItemCount, currentItemCount)
+            } else if (previousItemCount > currentItemCount) {
+                adapter.notifyItemRangeRemoved(0, 3)
+                adapter.notifyItemChanged(0)
+                adapter.notifyItemRangeRemoved(1, 1)
+                adapter.notifyItemChanged(1)
+            } else {
+                adapter.notifyItemChanged(0)
+                adapter.notifyItemRangeInserted(1, 2)
+                adapter.notifyItemChanged(3)
+                adapter.notifyItemRangeInserted(4, 2)
+                adapter.notifyItemMoved(0, 4)
+                adapter.notifyItemMoved(2, 5)
+            }
+        }
+    }
 
     override fun getItemAnimInfoList() = listOf(
         ItemAnimTestInfo(0, 3, 1, 1),

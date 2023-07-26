@@ -16,49 +16,39 @@
 
 package com.educards.collapseitemanimator.demo
 
+import androidx.recyclerview.widget.RecyclerView
 import com.educards.collapseitemanimator.DefaultStreamingNotifyExecutor
+import com.educards.collapseitemanimator.ItemAnimInfo
 
 class TestCaseControllerA : TestCaseController() {
 
     override val testCaseName = "A"
 
-    override val streamingNotifyExecutor = DefaultStreamingNotifyExecutor()
-
-//    override val streamingNotifyExecutor = object : NotifyHelper() {
-//        override fun notifyAfterDataSet(
-//            adapter: RecyclerView.Adapter<*>,
-//            itemAnimInfoMap: Map<Int, ItemAnimInfo>,
-//            previousItemCount: Int,
-//            currentItemCount: Int
-//        ) {
-//            if (previousItemCount <= 0) {
-//                super.notifyAfterDataSet(adapter, itemAnimInfoMap, previousItemCount, currentItemCount)
-//            } else if (previousItemCount > currentItemCount) {
-//                // expanded -> collapsed
-////                adapter.notifyItemChanged(3)
-////                adapter.notifyItemMoved(3, 1)
-////                adapter.notifyItemRangeRemoved(0, 1)
-////                adapter.notifyItemRangeInserted(0, 1)
-////                adapter.notifyItemRangeRemoved(2, 3)
-////                adapter.notifyItemRangeInserted(2, 1)
-//
-//                adapter.notifyItemRangeRemoved(0, 3)
-//                adapter.notifyItemRangeInserted(0, 2)
-//                adapter.notifyItemChanged(2)
-//                adapter.notifyItemRangeRemoved(3, 1)
-//                adapter.notifyItemMoved(2, 1)
-//
-//
-//            } else {
-//                // collapsed -> expanded
-//                adapter.notifyItemChanged(1)
-//                adapter.notifyItemMoved(1, 3)
-//                adapter.notifyItemRangeRemoved(0, 3)
-//                adapter.notifyItemRangeInserted(0, 3)
-//                adapter.notifyItemRangeInserted(4, 1)
-//            }
-//        }
-//    }
+    override val hardwiredNotifyExecutor = object : DefaultStreamingNotifyExecutor() {
+        override fun doNotify(
+            adapter: RecyclerView.Adapter<*>,
+            itemAnimInfoMap: Map<Int, ItemAnimInfo>,
+            previousItemCount: Int,
+            currentItemCount: Int
+        ) {
+            if (previousItemCount <= 0) {
+                super.doNotify(adapter, itemAnimInfoMap, previousItemCount, currentItemCount)
+            } else if (previousItemCount > currentItemCount) {
+                adapter.notifyItemRangeRemoved(0, 3)
+                adapter.notifyItemRangeInserted(0, 2)
+                adapter.notifyItemChanged(2)
+                adapter.notifyItemRangeRemoved(3, 1)
+                adapter.notifyItemMoved(2, 1)
+            } else {
+                adapter.notifyItemRangeRemoved(0, 1)
+                adapter.notifyItemRangeInserted(0, 2)
+                adapter.notifyItemChanged(2)
+                adapter.notifyItemRangeRemoved(3, 1)
+                adapter.notifyItemRangeInserted(3, 2)
+                adapter.notifyItemMoved(2, 3)
+            }
+        }
+    }
 
     override fun getItemAnimInfoList() = listOf(
         ItemAnimTestInfo(3, 1, 1, 1)

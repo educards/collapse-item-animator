@@ -23,6 +23,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.educards.collapseitemanimator.ExpansionState
 import com.educards.collapseitemanimator.CollapseItemAnimator
+import com.educards.collapseitemanimator.DefaultStreamingNotifyExecutor
 import com.educards.collapseitemanimator.demo.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -50,6 +51,7 @@ class MainActivity : AppCompatActivity() {
         initSwitchButton()
         initTestCasesButtons()
         initAnimSpeedSlider()
+        initTestNotifyExecutor()
     }
 
     private fun initRecyclerView() {
@@ -62,6 +64,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initAdapterData() {
+        updateNotifyExecutor(adapter, testCaseController, binding.notifyExecutorProd.isChecked)
         testCaseController.switchAdapterData(adapter, false)
     }
 
@@ -114,6 +117,26 @@ class MainActivity : AppCompatActivity() {
 
         // setup init (default) value
         binding.animSpeedSlider.value = COLLAPSE_ANIM_DEFAULT_DURATION_MS
+    }
+
+    private fun initTestNotifyExecutor() {
+
+        binding.notifyExecutorsRadioGroup.setOnCheckedChangeListener { group, checkedId ->
+            updateNotifyExecutor(adapter, testCaseController, checkedId == R.id.notify_executor_prod)
+        }
+
+        // Select prod by default
+        binding.notifyExecutorsRadioGroup.findViewById<RadioButton>(
+            R.id.notify_executor_prod
+        ).isChecked = true
+    }
+
+    private fun updateNotifyExecutor(adapter: DemoAdapter, testCaseController: TestCaseController, prod: Boolean) {
+        if (prod) {
+            adapter.streamingNotifyExecutor = DefaultStreamingNotifyExecutor()
+        } else {
+            adapter.streamingNotifyExecutor = testCaseController.hardwiredNotifyExecutor
+        }
     }
 
     companion object {
