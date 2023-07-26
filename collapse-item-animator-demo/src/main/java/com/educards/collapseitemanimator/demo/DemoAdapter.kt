@@ -26,6 +26,8 @@ import com.educards.collapseitemanimator.CollapseAnimAdapter
 import com.educards.collapseitemanimator.CollapseAnimFrameLayout
 import com.educards.collapseitemanimator.CollapseAnimViewHolder
 import com.educards.collapseitemanimator.AnimInfo
+import com.educards.collapseitemanimator.DefaultStreamingNotifyExecutor
+import com.educards.collapseitemanimator.StreamingNotifyExecutor
 import java.util.TreeMap
 
 class DemoAdapter(
@@ -48,11 +50,13 @@ class DemoAdapter(
 
     private var data: List<String>? = null
 
-    override val itemAnimInfoMap = TreeMap<Int, ItemAnimInfo>()
+    override val itemAnimInfo = TreeMap<Int, ItemAnimInfo>()
 
     override var dataExpansionState: ExpansionState? = null
 
     override var previousItemCount = -1
+
+    override var streamingNotifyExecutor: StreamingNotifyExecutor = DefaultStreamingNotifyExecutor()
 
     override fun findViewHolderForAdapterPosition(position: Int) =
         recyclerView.findViewHolderForAdapterPosition(position)
@@ -81,11 +85,17 @@ class DemoAdapter(
     fun setData(
         data: List<String>,
         dataExpansionState: ExpansionState,
-        animInfoList: List<ItemAnimInfo>?
+        animInfoList: List<ItemAnimInfo>?,
+        streamingNotifyExecutor: StreamingNotifyExecutor,
     ) {
         onPreData(dataExpansionState)
         this.data = data
         setItemAnimInfo(animInfoList)
+
+        // Update 'notifyExecutor'
+        // (it could have been possibly changed to test a specific test-case)
+        this.streamingNotifyExecutor = streamingNotifyExecutor
+
         notifyAfterDataSet()
     }
 
