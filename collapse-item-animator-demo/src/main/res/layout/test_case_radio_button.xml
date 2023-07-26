@@ -6,7 +6,7 @@
     tools:context="com.educards.collapseitemanimator.demo.MainActivity"
     android:id="@+id/test_case_a"
     android:text="Test case name"
-    android:paddingHorizontal="8dp"
+    android:paddingHorizontal="4dp"
     style="@style/TextAppearance.AppCompat.Inverse"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" />

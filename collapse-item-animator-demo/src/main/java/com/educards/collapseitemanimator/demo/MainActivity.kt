@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
         initRecyclerView()
         initSwitchButton()
         initTestCasesButtons()
+        initAnimSpeedSlider()
     }
 
     private fun initRecyclerView() {
@@ -57,12 +58,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.recyclerView.adapter = this.adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.itemAnimator = CollapseItemAnimator().apply {
-            changeDuration = COLLAPSE_ANIM_DURATION_MS
-            moveDuration = COLLAPSE_ANIM_DURATION_MS
-            removeDuration = COLLAPSE_ANIM_DURATION_MS
-            addDuration = COLLAPSE_ANIM_DURATION_MS
-        }
+        binding.recyclerView.itemAnimator = CollapseItemAnimator()
     }
 
     private fun initAdapterData() {
@@ -104,8 +100,24 @@ class MainActivity : AppCompatActivity() {
         binding.switchButton.text = if (animDir == ExpansionState.EXPANDED) "Expand" else "Collapse"
     }
 
+    private fun initAnimSpeedSlider() {
+
+        binding.animSpeedSlider.addOnChangeListener { slider, value, fromUser ->
+            with (binding.recyclerView.itemAnimator as CollapseItemAnimator) {
+                val animDurationMs = value.toLong()
+                changeDuration = animDurationMs
+                moveDuration = animDurationMs
+                removeDuration = animDurationMs
+                addDuration = animDurationMs
+            }
+        }
+
+        // setup init (default) value
+        binding.animSpeedSlider.value = COLLAPSE_ANIM_DEFAULT_DURATION_MS
+    }
+
     companion object {
-        private const val COLLAPSE_ANIM_DURATION_MS = 2450L
+        private const val COLLAPSE_ANIM_DEFAULT_DURATION_MS = 450f
     }
 
 }
