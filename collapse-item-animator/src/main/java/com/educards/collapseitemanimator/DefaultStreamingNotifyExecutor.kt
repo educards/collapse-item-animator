@@ -48,7 +48,7 @@ open class DefaultStreamingNotifyExecutor: StreamingNotifyExecutor {
         }
 
         if (BuildConfig.DEBUG) {
-            debugPringScaledIndices(itemAnimInfoList, scaledIndices)
+            debugLogScaledIndices(itemAnimInfoList, scaledIndices)
         }
 
         // walk through the ItemAnimInfoList items
@@ -104,7 +104,7 @@ open class DefaultStreamingNotifyExecutor: StreamingNotifyExecutor {
         }
     }
 
-    private fun debugPringScaledIndices(
+    private fun debugLogScaledIndices(
         itemAnimInfoList: List<ItemAnimInfo>,
         scaledIndices: MutableList<Int>
     ) {

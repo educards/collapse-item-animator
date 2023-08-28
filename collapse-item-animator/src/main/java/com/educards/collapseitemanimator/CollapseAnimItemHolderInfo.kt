@@ -19,6 +19,8 @@ class CollapseAnimItemHolderInfo : ItemHolderInfo() {
     var animBitmapCollapsedFirstLineY: Float? = null
     var animBitmapCollapsedHeight: Float? = null
 
+    var itemAnimInfo: ItemAnimInfo? = null
+
     fun isCustomAnimated() = viewExpansionState != null
 
     fun isExpanded() = viewExpansionState == ExpansionState.EXPANDED
@@ -28,42 +30,40 @@ class CollapseAnimItemHolderInfo : ItemHolderInfo() {
 
             viewExpansionState = holder.viewExpansionState
 
-            // Animation for both directions ...
-            //    (expanded  -> collapsed)
-            //    (collapsed -> expanded)
-            // ... is performed from bitmap of expanded view.
-            // Therefore the `animInfo` is provided only for the view in its expanded state.
             if (isExpanded()) {
-                val animInfo = holder.animInfo
-                if (animInfo == null) {
-                    error("${AnimInfo::class.simpleName} expected")
 
-                } else {
+                // Animation for both directions ...
+                //    (expanded  -> collapsed)
+                //    (collapsed -> expanded)
+                // ... is performed from bitmap of expanded view.
+                // Therefore the `animInfo` is provided only for the view in its expanded state.
+                val itemAnimInfo = holder.itemAnimInfo ?: error("${AnimInfo::class.simpleName} expected")
+                this.itemAnimInfo = itemAnimInfo
 
-                    // temporarily switch off potential ongoing animation
-                    val preRenderAnimPhase = holder.rootView.getCollapseAnimViewData().animBitmapPhase
-                    setOngoingAnimationPhase(holder, CollapseAnimView.NOT_ANIMATING)
+                // temporarily "switch off" potential ongoing animation
+                val preRenderAnimPhase = holder.rootView.getCollapseAnimViewData().animBitmapPhase
+                setOngoingAnimationPhase(holder, CollapseAnimView.NOT_ANIMATING)
 
-                    // render bitmap
-                    animBitmap = renderToNewBitmap(holder)
+                // render bitmap
+                animBitmap = renderToNewBitmap(holder)
 
-                    val layout = holder.textView.layout
+                val layout = holder.textView.layout
 
-                    // compute Y of the first line visible in collapsed state
-                    val firstLineY =
-                        (layout.getLineTop(animInfo.collapsedStateVisibleFirstLine) + holder.textView.layout.topPadding).toFloat()
-                    animBitmapCollapsedFirstLineY = firstLineY
+                // compute Y of the first line visible in collapsed state
+                val firstLineY =
+                    (layout.getLineTop(itemAnimInfo.animInfo.collapsedStateVisibleFirstLine) + holder.textView.layout.topPadding).toFloat()
+                animBitmapCollapsedFirstLineY = firstLineY
 
-                    // compute height of collapsed view
-                    val lastLineY = (layout.getLineBottom(
-                        animInfo.collapsedStateVisibleFirstLine +
-                                animInfo.collapsedStateVisibleLinesCount - 1
-                    ) + layout.bottomPadding).toFloat()
-                    animBitmapCollapsedHeight = lastLineY - firstLineY
+                // compute height of collapsed view
+                val lastLineY = (layout.getLineBottom(
+                    itemAnimInfo.animInfo.collapsedStateVisibleFirstLine +
+                            itemAnimInfo.animInfo.collapsedStateVisibleLinesCount - 1
+                ) + layout.bottomPadding).toFloat()
+                animBitmapCollapsedHeight = lastLineY - firstLineY
 
-                    // continue temporarily switched off anim
-                    setOngoingAnimationPhase(holder, preRenderAnimPhase)
-                }
+                // restore temporarily "switched off" anim
+                // (see few lines above, where the anim is "switched off")
+                setOngoingAnimationPhase(holder, preRenderAnimPhase)
             }
         }
         return super.setFrom(holder)

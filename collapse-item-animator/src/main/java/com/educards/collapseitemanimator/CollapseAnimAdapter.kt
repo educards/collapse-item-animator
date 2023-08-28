@@ -1,5 +1,6 @@
 package com.educards.collapseitemanimator
 
+import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
@@ -8,22 +9,22 @@ import java.util.SortedMap
 /**
  * An interface implemented by [RecyclerView.Adapter] supporting the collapse animation.
  *
- * @see setItemAnimInfo
+ * @see setItemAnimInfoList
  * @see onBindPreTransitionItemAnimInfo
  * @see onBindPostTransitionItemAnimInfo
  * @see onPreData
  * @see notifyAfterDataSet
  */
-interface CollapseAnimAdapter {
+interface CollapseAnimAdapter : CollapseItemAnimator.AnimStateListener {
 
     /**
      * Animation details of animated items.
      * * `key`: target position of item after transition (post-transition phase)
      *          regardless of the transition direction (expanded <-> collapsed)
      * * `value`: [ItemAnimInfo]
-     * @see setItemAnimInfo
+     * @see setItemAnimInfoList
      */
-    val itemAnimInfo: SortedMap<Int, ItemAnimInfo>
+    val itemAnimInfoMap: SortedMap<Int, ItemAnimInfo>
 
     /**
      * Current [ExpansionState] of the whole [Adapter] (of all its items).
@@ -50,12 +51,12 @@ interface CollapseAnimAdapter {
      * is invoked before taking "snapshot" of pre-transition view state ([CollapseItemAnimator.recordPreLayoutInformation]).
      */
     fun onBindPostTransitionItemAnimInfo(holder: ViewHolder, positionPostTransition: Int) {
-        val itemAnimInfo = itemAnimInfo[positionPostTransition]
-        onBindAnimInfo(holder, itemAnimInfo?.itemTargetExpansionState, itemAnimInfo?.animInfo)
+        val itemAnimInfo = itemAnimInfoMap[positionPostTransition]
+        onBindItemAnimInfo(holder, itemAnimInfo?.itemTargetExpansionState, itemAnimInfo)
     }
 
     /**
-     * Propagates [AnimInfo] further to bound [holder].
+     * Propagates [AnimInfo] further to a bound [holder].
      *
      * Invocation of this method for both pre- & post-transition view holders is required,
      * because in the current implementation of [CollapseItemAnimator]
@@ -65,29 +66,30 @@ interface CollapseAnimAdapter {
      * @see onBindPreTransitionItemAnimInfo
      * @see onBindPostTransitionItemAnimInfo
      */
-    private fun onBindAnimInfo(
+    private fun onBindItemAnimInfo(
         holder: ViewHolder,
         viewExpansionState: ExpansionState?,
-        collapsedStateAnimInfo: AnimInfo?
+        collapsedStateItemAnimInfo: ItemAnimInfo?
     ) {
         if (holder is CollapseAnimViewHolder) {
             holder.viewExpansionState = viewExpansionState
-            holder.animInfo = collapsedStateAnimInfo
+            holder.itemAnimInfo = collapsedStateItemAnimInfo
         } else {
             error("Unexpected ViewHolder type [${holder::class.simpleName}]")
         }
     }
 
     /**
-     * Invoked immediately after new [Adapter]'s data are provided to setup animation.
+     * Invoked immediately after new [Adapter]'s data are set to [Adapter]
+     * to setup animation for these newly provided data.
      */
-    fun setItemAnimInfo(itemAnimInfoList: List<ItemAnimInfo>?) {
-        itemAnimInfo.clear()
+    fun setItemAnimInfoList(itemAnimInfoList: List<ItemAnimInfo>?) {
+        itemAnimInfoMap.clear()
         itemAnimInfoList?.forEach { itemAnimInfo ->
             // "pre-transition" setup
             onBindPreTransitionItemAnimInfo(itemAnimInfo)
             // "transition" & "post-transition" setup
-            this.itemAnimInfo[itemAnimInfo.itemIndexPostTransition] = itemAnimInfo
+            this.itemAnimInfoMap[itemAnimInfo.itemIndexPostTransition] = itemAnimInfo
         }
     }
 
@@ -107,7 +109,7 @@ interface CollapseAnimAdapter {
 
             // This method is invoked in pre-animation phase, therefore
             // the current view's `ExpansionState` represents the initial
-            // (and therefor opposite) state of the `itemTargetExpansionState`.
+            // (and therefore opposite) state of the `itemTargetExpansionState`.
             val currentViewExpansionState = itemAnimInfo.itemTargetExpansionState.getOpposite()
 
             onBindAnimInfo(
@@ -131,15 +133,15 @@ interface CollapseAnimAdapter {
 
     fun getItemId(position: Int) =
         dataExpansionState?.let { expansionState ->
-            itemAnimInfo[position]?.itemId
-                ?: getItemIdStaticItems(expansionState, position)
+            itemAnimInfoMap[position]?.itemId
+                ?: getNotAnimatedItemId(expansionState, position)
         } ?: error("'expansionState' undefined, did you invoke 'onPreData'?")
 
     /**
-     * Returns ID of those items, which are not being
+     * Computes ID for such item, which is not being
      * animated during collapse-expand transition.
      */
-    fun getItemIdStaticItems(expansionState: ExpansionState, position: Int) =
+    fun getNotAnimatedItemId(expansionState: ExpansionState, position: Int) =
         when (expansionState) {
             ExpansionState.EXPANDED -> {
                 position.toLong()
@@ -158,7 +160,7 @@ interface CollapseAnimAdapter {
     fun notifyAfterDataSet() {
         this as Adapter<*>
         checkAnimSetup()
-        streamingNotifyExecutor.doNotify(this, itemAnimInfo, previousItemCount, itemCount)
+        streamingNotifyExecutor.doNotify(this, itemAnimInfoMap, previousItemCount, itemCount)
     }
 
     /**
@@ -168,7 +170,7 @@ interface CollapseAnimAdapter {
         if (dataExpansionState == null) {
             error("Adapter's dataExpansionState is required to be set.")
         }
-        itemAnimInfo.forEach { entry ->
+        itemAnimInfoMap.forEach { entry ->
             if (entry.value.itemTargetExpansionState != dataExpansionState) {
                 error(
                     "ExpansionState of all Adapter items is by design " +
