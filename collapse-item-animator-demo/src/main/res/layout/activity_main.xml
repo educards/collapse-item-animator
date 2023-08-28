@@ -99,7 +99,7 @@
                     app:haloColor="@color/colorSunglow"
                     android:stepSize="10"
                     android:valueFrom="10"
-                    android:valueTo="2000"
+                    android:valueTo="4000"
                     android:value="300"
                     android:layout_weight="1"
                     android:layout_width="0dp"
