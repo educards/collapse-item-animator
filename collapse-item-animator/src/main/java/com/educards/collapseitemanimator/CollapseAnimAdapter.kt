@@ -112,20 +112,7 @@ interface CollapseAnimAdapter : CollapseItemAnimator.AnimStateListener {
             // (and therefore opposite) state of the `itemTargetExpansionState`.
             val currentViewExpansionState = itemAnimInfo.itemTargetExpansionState.getOpposite()
 
-            onBindAnimInfo(
-                currentViewHolder,
-                currentViewExpansionState,
-
-                // Because both anim directions ...
-                //    (collapsed -> expanded)
-                //    (expanded  -> collapsed)
-                // ... are animated by rendering bitmap of the expanded view,
-                // we provide AnimInfo (which holds also bitmap rendering details)
-                // only for expanded view (since this is the view being always animated).
-                if (currentViewExpansionState == ExpansionState.EXPANDED) {
-                    itemAnimInfo.animInfo
-                } else null
-            )
+            onBindItemAnimInfo(currentViewHolder, currentViewExpansionState, itemAnimInfo)
         }
     }
 
