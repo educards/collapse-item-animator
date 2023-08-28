@@ -90,16 +90,30 @@ class CollapseItemAnimator : DefaultItemAnimator() {
                 val anim = ValueAnimator.ofFloat(0f, 1f)
                 anim.duration = changeDuration
 
-                val animUpdateListener = ValueAnimator.AnimatorUpdateListener {
-                    rootView.translationY = -deltaY * (1f - it.animatedFraction)
-                    rootViewAnimData.animBitmapPhase =
-                        if (expanding) {
-                            preResetAnimBitmapPhase - it.animatedFraction * preResetAnimBitmapPhase
-                        } else {
-                            preResetAnimBitmapPhase + it.animatedFraction * (1f - preResetAnimBitmapPhase)
-                        }
-                    rootView.invalidate() // redraw animBitmap
-                }
+            var scrolledY = 0
+            val scrollOffsetFirstLineY =
+                rootView.y + deltaY +
+                        (if (expanding) rootViewAnimData.animBitmapCollapsedFirstLineY else 0f)
+
+            val animUpdateListener = ValueAnimator.AnimatorUpdateListener {
+
+                // translate Y
+                rootView.translationY = -deltaY * (1f - it.animatedFraction)
+
+                // render animBitmap
+                rootViewAnimData.animBitmapPhase =
+                    if (expanding) {
+                        preResetAnimBitmapPhase - it.animatedFraction * preResetAnimBitmapPhase
+                    } else {
+                        preResetAnimBitmapPhase + it.animatedFraction * (1f - preResetAnimBitmapPhase)
+                    }
+                rootView.invalidate() // redraw animBitmap
+
+                // scroll Y
+                val scrollYDelta = ((it.animatedFraction * scrollOffsetFirstLineY) - scrolledY).toInt()
+                recyclerView.scrollBy(0, scrollYDelta)
+                scrolledY += scrollYDelta
+            }
 
                 val animListener = object : AnimatorListenerAdapter() {
 
