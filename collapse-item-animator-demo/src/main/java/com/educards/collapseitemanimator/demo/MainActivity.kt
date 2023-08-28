@@ -21,6 +21,7 @@ import android.widget.RadioButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.educards.collapseitemanimator.ExpansionState
 import com.educards.collapseitemanimator.CollapseItemAnimator
 import com.educards.collapseitemanimator.DefaultStreamingNotifyExecutor
@@ -56,11 +57,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun initRecyclerView() {
 
-        this.adapter = DemoAdapter(layoutInflater, binding.recyclerView)
+        adapter = DemoAdapter(layoutInflater, binding.recyclerView)
 
-        binding.recyclerView.adapter = this.adapter
+        binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.itemAnimator = CollapseItemAnimator()
+        binding.recyclerView.itemAnimator = CollapseItemAnimator(binding.recyclerView, adapter)
     }
 
     private fun initAdapterData() {
@@ -106,12 +107,15 @@ class MainActivity : AppCompatActivity() {
     private fun initAnimSpeedSlider() {
 
         binding.animSpeedSlider.addOnChangeListener { slider, value, fromUser ->
-            with (binding.recyclerView.itemAnimator as CollapseItemAnimator) {
+            val itemAnimator = binding.recyclerView.itemAnimator
+            if (itemAnimator is SimpleItemAnimator) {
                 val animDurationMs = value.toLong()
-                changeDuration = animDurationMs
-                moveDuration = animDurationMs
-                removeDuration = animDurationMs
-                addDuration = animDurationMs
+                with(itemAnimator) {
+                    changeDuration = animDurationMs
+                    moveDuration = animDurationMs
+                    removeDuration = animDurationMs
+                    addDuration = animDurationMs
+                }
             }
         }
 

@@ -25,7 +25,6 @@ import com.educards.collapseitemanimator.ExpansionState
 import com.educards.collapseitemanimator.CollapseAnimAdapter
 import com.educards.collapseitemanimator.CollapseAnimFrameLayout
 import com.educards.collapseitemanimator.CollapseAnimViewHolder
-import com.educards.collapseitemanimator.AnimInfo
 import com.educards.collapseitemanimator.DefaultStreamingNotifyExecutor
 import com.educards.collapseitemanimator.StreamingNotifyExecutor
 import java.util.TreeMap
@@ -50,7 +49,7 @@ class DemoAdapter(
 
     private var data: List<String>? = null
 
-    override val itemAnimInfo = TreeMap<Int, ItemAnimInfo>()
+    override val itemAnimInfoMap = TreeMap<Int, ItemAnimInfo>()
 
     override var dataExpansionState: ExpansionState? = null
 
@@ -89,7 +88,7 @@ class DemoAdapter(
     ) {
         onPreData(dataExpansionState)
         this.data = data
-        setItemAnimInfo(animInfoList)
+        setItemAnimInfoList(animInfoList)
         notifyAfterDataSet()
     }
 
@@ -99,7 +98,8 @@ class DemoAdapter(
     ) : RecyclerView.ViewHolder(rootView),
         CollapseAnimViewHolder {
         override var viewExpansionState: ExpansionState? = null
-        override var animInfo: AnimInfo? = null
+        override var itemAnimInfo: ItemAnimInfo? = null
+        override var suppressNextAnimCycle: Boolean = false
     }
 
 }
