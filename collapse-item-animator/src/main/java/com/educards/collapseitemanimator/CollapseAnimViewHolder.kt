@@ -35,7 +35,18 @@ interface CollapseAnimViewHolder {
 
     var viewExpansionState: ExpansionState?
 
-    var animInfo: AnimInfo?
+    var itemAnimInfo: ItemAnimInfo?
+
+    /**
+     * Request to omit scheduled animation for this `ViewHolder` instance.
+     *
+     * TODO This is probably not the best approach. What if framework
+     *      creates and uses another instance instead? In such case the
+     *      request information is lost.
+     *
+     * @see CollapseAnimAdapter.onPostAnim
+     */
+    var suppressNextAnimCycle: Boolean
 
     fun isCustomAnimated() = viewExpansionState != null
 

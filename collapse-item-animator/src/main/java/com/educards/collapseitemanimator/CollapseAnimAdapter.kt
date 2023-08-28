@@ -182,4 +182,73 @@ interface CollapseAnimAdapter {
         }
     }
 
+    override fun onPostAnim(
+        recyclerView: RecyclerView,
+        animator: CollapseItemAnimator,
+        viewHolder: CollapseAnimViewHolder,
+        animSequenceFinished: Boolean,
+        animCancelled: Boolean
+    ) {
+        if (BuildConfig.DEBUG) Log.d(TAG, "onPostAnim [" +
+                "holder.hash: ${viewHolder.hashCode()}, " +
+                "recyclerView.isComputingLayout: ${recyclerView.isComputingLayout}, " +
+                "animSequenceFinished: $animSequenceFinished, " +
+                "animCancelled: $animCancelled]")
+
+        if (animSequenceFinished) {
+            val itemAnimInfo = viewHolder.itemAnimInfo
+            if (itemAnimInfo == null) {
+                error("'animInfo' expended for ViewHolder which just finished collapsed/expand animation")
+            }
+
+            val postTransitionIndex = itemAnimInfo.itemIndexPostTransition
+
+            // Animation for this item is done.
+            // Now clear animation metadata, because they are scoped for
+            // animation phase only. Without this we would risk that item
+            // would be animated again after subsequent call to notifyItemChanged.
+            // TODO Wrap this in some clearMetadata method?
+            itemAnimInfoMap.remove(postTransitionIndex)
+            viewHolder.viewExpansionState = null
+            viewHolder.itemAnimInfo = null
+
+            // TODO Describe all this mess around
+            //      'suppressNextAnimCycle' and the need to
+            //      call 'notifyItemChanged' (because we've just
+            //      cleared the animation metadata, because animation
+            //      has finished, and as a consequence item ID has changed
+            //      (because it's been part of anim metadata),
+            //      and we need to tell the framework about this ID change
+            //      somehow without triggering another animation.
+            //      So we make the framework know about this by combination of
+            //      'suppressNextAnimCycle' and 'notifyItemChanged'.
+            //      Another option could be to disable animations using
+            //      animator.supportsChangeAnimations=false, but we've encountered
+            //      some issues related to asynchronous nature of API (view.post{...})
+            //      which got messy really fast.
+
+            // TODO Is there a way to do this without this 'recyclerView.isComputingLayout' fork?
+            if (recyclerView.isComputingLayout) {
+                // Needs to be called in post to prevent:
+                // java.lang.IllegalStateException: Cannot call this method while RecyclerView is computing a layout or scrolling
+                // By the end of animation the scroll might be still in progress.
+                viewHolder.rootView.post {
+                    this as Adapter<*>
+                    viewHolder.suppressNextAnimCycle = true
+                    notifyItemChanged(postTransitionIndex)
+                }
+            } else {
+                this as Adapter<*>
+                viewHolder.suppressNextAnimCycle = true
+                notifyItemChanged(postTransitionIndex)
+            }
+
+        }
+
+    }
+
+    companion object {
+        private const val TAG = "CollapseAnimAdapter"
+    }
+
 }
