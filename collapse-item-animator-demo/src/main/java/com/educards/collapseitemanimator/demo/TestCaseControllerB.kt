@@ -34,24 +34,25 @@ class TestCaseControllerB : TestCaseController() {
             if (previousItemCount <= 0) {
                 super.doNotify(adapter, itemAnimInfoMap, previousItemCount, currentItemCount)
             } else if (previousItemCount > currentItemCount) {
-                adapter.notifyItemRangeRemoved(0, 4)
-                adapter.notifyItemRangeInserted(0, 2)
-                adapter.notifyItemChanged(2)
-                adapter.notifyItemRangeRemoved(3, 1)
-                adapter.notifyItemMoved(2, 1)
+                adapter.notifyItemRangeRemoved(0, 14)
+                adapter.notifyItemRangeInserted(0, 11)
+                adapter.notifyItemChanged(11)
+                adapter.notifyItemRangeRemoved(12, 1)
+                adapter.notifyItemRangeInserted(12, 1)
+                adapter.notifyItemMoved(11, 1)
             } else {
                 adapter.notifyItemRangeRemoved(0, 1)
-                adapter.notifyItemRangeInserted(0, 2)
-                adapter.notifyItemChanged(2)
-                adapter.notifyItemRangeRemoved(3, 1)
-                adapter.notifyItemRangeInserted(3, 3)
-                adapter.notifyItemMoved(2, 4)
+                adapter.notifyItemRangeInserted(0, 1)
+                adapter.notifyItemChanged(1)
+                adapter.notifyItemRangeRemoved(2, 11)
+                adapter.notifyItemRangeInserted(2, 14)
+                adapter.notifyItemMoved(1, 14)
             }
         }
     }
 
     override fun getItemAnimInfoList() = listOf(
-        ItemAnimTestInfo(4, 1, 1, 1)
+        ItemAnimTestInfo(14, 1, 10, 1)
     )
 
     override fun generateExpandedSampleData() = listOf(
@@ -59,13 +60,43 @@ class TestCaseControllerB : TestCaseController() {
         "Etiam aliquam sem eget mauris eleifend, id egestas velit sagittis. Vestibulum a velit at dui bibendum ornare at vitae nisl. Pellentesque vestibulum hendrerit lectus vitae bibendum.",
         "Integer mattis blandit ornare.",
         "Pellentesque non leo nisi. Donec pretium felis in ex bibendum, et rutrum odio convallis. Curabitur bibendum imperdiet justo accumsan tincidunt.",
-        "Item animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.",
+        "Pellentesque non leo nisi. Donec pretium felis in ex bibendum, et rutrum odio convallis. Curabitur bibendum imperdiet justo accumsan tincidunt.",
+        "Pellentesque non leo nisi. Donec pretium felis in ex bibendum, et rutrum odio convallis. Curabitur bibendum imperdiet justo accumsan tincidunt.",
+        "Pellentesque non leo nisi. Donec pretium felis in ex bibendum, et rutrum odio convallis. Curabitur bibendum imperdiet justo accumsan tincidunt.",
+        "Pellentesque non leo nisi. Donec pretium felis in ex bibendum, et rutrum odio convallis. Curabitur bibendum imperdiet justo accumsan tincidunt.",
+        "Pellentesque non leo nisi. Donec pretium felis in ex bibendum, et rutrum odio convallis. Curabitur bibendum imperdiet justo accumsan tincidunt.",
+        "Pellentesque non leo nisi. Donec pretium felis in ex bibendum, et rutrum odio convallis. Curabitur bibendum imperdiet justo accumsan tincidunt.",
+        "Pellentesque non leo nisi. Donec pretium felis in ex bibendum, et rutrum odio convallis. Curabitur bibendum imperdiet justo accumsan tincidunt.",
+        "Pellentesque non leo nisi. Donec pretium felis in ex bibendum, et rutrum odio convallis. Curabitur bibendum imperdiet justo accumsan tincidunt.",
+        "Pellentesque non leo nisi. Donec pretium felis in ex bibendum, et rutrum odio convallis. Curabitur bibendum imperdiet justo accumsan tincidunt.",
+        "Pellentesque non leo nisi. Donec pretium felis in ex bibendum, et rutrum odio convallis. Curabitur bibendum imperdiet justo accumsan tincidunt.",
+        "Item animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\n" +
+                "Item animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\n" +
+                "Item animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\n" +
+                "Item animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\n" +
+                "Item animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\n" +
+                "Item animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\n" +
+                "Item animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\n" +
+                "Item animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\n" +
+                "Item animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\n" +
+                "Item animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\n" +
+                "Item animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.\nItem animated with CollapseItemAnimator.",
         "Proin congue velit sit amet erat condimentum, quis pellentesque dui posuere. Praesent sed nisi sed justo elementum blandit."
     )
 
     override fun generateCollapsedSampleData() = listOf(
         "Sed eu neque arcu. Etiam eleifend dui augue, id tempus felis aliquam id.",
         "Item animated with CollapseItemAnimator.",
+        "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",
+        "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",
+        "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",
+        "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",
+        "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",
+        "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",
+        "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",
+        "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",
+        "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",
+        "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",
         "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula."
     )
 
