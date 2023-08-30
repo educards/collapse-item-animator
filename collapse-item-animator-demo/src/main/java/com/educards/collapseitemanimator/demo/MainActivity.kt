@@ -17,6 +17,7 @@
 package com.educards.collapseitemanimator.demo
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.widget.RadioButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -81,7 +82,7 @@ class MainActivity : AppCompatActivity() {
         // Instantiate RadioButton for each test case
         // and add it to layout.
         availableTests.forEach { testCaseController ->
-            val testCaseRadioButton = layoutInflater.inflate(R.layout.test_case_radio_button, null, false) as RadioButton
+            val testCaseRadioButton = LayoutInflater.from(this).inflate(R.layout.test_case_radio_button, null, false) as RadioButton
             testCaseRadioButton.id = testCaseController.viewId
             testCaseRadioButton.text = testCaseController.testCaseName
             binding.testCasesRadioGroup.addView(testCaseRadioButton)
