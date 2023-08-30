@@ -43,14 +43,17 @@ abstract class TestCaseController {
     private fun getOppositeAnimDirection(animDirection: ExpansionState?) =
         animDirection?.getOpposite() ?: ExpansionState.EXPANDED
 
-    fun switchAdapterData(
-        adapter: DemoAdapter,
-        withCollapseAnimation: Boolean
-    ) {
+    fun initOrSwitchAdapterData(adapter: DemoAdapter) {
 
         // detect new state (switch)
         val nextDataExpansionState = getOppositeAnimDirection(previousAnimDirection)
         previousAnimDirection = nextDataExpansionState
+
+        // init current adapter.dataExpansionState
+        // if adapter is fresh (without any data so far)
+        if (adapter.dataExpansionState == null) {
+            adapter.onPreData(getOppositeAnimDirection(nextDataExpansionState))
+        }
 
         // generate and set data
         val nextData = when (nextDataExpansionState) {
@@ -58,28 +61,17 @@ abstract class TestCaseController {
             ExpansionState.COLLAPSED -> generateCollapsedSampleData()
         }
 
-        if (withCollapseAnimation) {
-
-            val animInfoList = getItemAnimInfoList().map {
-                ItemAnimInfo(
-                    itemId = adapter.getItemId(if (nextDataExpansionState == ExpansionState.EXPANDED) it.animItemCollapsedIndex else it.animItemExpandedIndex),
-                    itemIndexPreTransition = if (nextDataExpansionState == ExpansionState.EXPANDED) it.animItemCollapsedIndex else it.animItemExpandedIndex,
-                    itemIndexPostTransition = if (nextDataExpansionState == ExpansionState.EXPANDED) it.animItemExpandedIndex else it.animItemCollapsedIndex,
-                    itemTargetExpansionState = nextDataExpansionState,
-                    animInfo = AnimInfo(it.animItemCollapsedVisibleFirstLine, it.animItemCollapsedVisibleLinesCount)
-                )
-            }
-
-            adapter.setData(
-                nextData,
-                nextDataExpansionState,
-                animInfoList
+        val itemAnimInfoList = getItemAnimInfoList().map {
+            ItemAnimInfo(
+                itemId = adapter.getItemId(if (nextDataExpansionState == ExpansionState.EXPANDED) it.animItemCollapsedIndex else it.animItemExpandedIndex),
+                itemIndexPreTransition = if (nextDataExpansionState == ExpansionState.EXPANDED) it.animItemCollapsedIndex else it.animItemExpandedIndex,
+                itemIndexPostTransition = if (nextDataExpansionState == ExpansionState.EXPANDED) it.animItemExpandedIndex else it.animItemCollapsedIndex,
+                itemTargetExpansionState = nextDataExpansionState,
+                animInfo = AnimInfo(it.animItemCollapsedVisibleFirstLine, it.animItemCollapsedVisibleLinesCount)
             )
-
-        } else {
-            adapter.setData(nextData, nextDataExpansionState, null)
         }
 
+        adapter.setData(nextData, nextDataExpansionState, itemAnimInfoList)
     }
 
     abstract fun getItemAnimInfoList(): List<ItemAnimTestInfo>

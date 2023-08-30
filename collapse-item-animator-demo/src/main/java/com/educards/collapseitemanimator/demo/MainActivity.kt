@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initRecyclerView() {
 
-        adapter = DemoAdapter(layoutInflater, binding.recyclerView)
+        adapter = DemoAdapter(this, binding.recyclerView)
 
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -66,12 +66,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun initAdapterData() {
         updateNotifyExecutor(adapter, testCaseController, binding.notifyExecutorProd.isChecked)
-        testCaseController.switchAdapterData(adapter, false)
+        testCaseController.initOrSwitchAdapterData(adapter)
     }
 
     private fun initSwitchButton() {
         binding.switchButton.setOnClickListener {
-            testCaseController.switchAdapterData(adapter, true)
+            testCaseController.initOrSwitchAdapterData(adapter)
             updateSwitchButtonText(testCaseController.getNextActionTitle())
         }
     }

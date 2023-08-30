@@ -16,10 +16,18 @@
 
 package com.educards.collapseitemanimator.demo
 
+import android.content.Context
+import android.graphics.Color
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.BackgroundColorSpan
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.educards.collapseitemanimator.AnimInfo
 import com.educards.collapseitemanimator.ItemAnimInfo
 import com.educards.collapseitemanimator.ExpansionState
 import com.educards.collapseitemanimator.CollapseAnimAdapter
@@ -31,7 +39,7 @@ import java.util.TreeMap
 
 class DemoAdapter(
 
-    private val layoutInflater: LayoutInflater,
+    context: Context,
 
     /**
      * A cyclic reference to [RecyclerView] which
@@ -47,9 +55,33 @@ class DemoAdapter(
         setupStableIds()
     }
 
+    private val highlightBackgroundColor =
+        ResourcesCompat.getColor(context.resources, R.color.colorMayaBlueDarker, context.theme)
+    private val highlightForegroundColor =
+        Color.BLACK
+
+    /**
+     * Single-purpose offscreen instance of [TextView] type of [ViewHolder]
+     * to make measurements in [onBindViewHolder].
+     */
+    private lateinit var offscreenTextViewHolder: ViewHolder
+
     private var data: List<String>? = null
 
     override val itemAnimInfoMap = TreeMap<Int, ItemAnimInfo>()
+
+    /**
+     * Animation metadata ([itemAnimInfoMap]) is by design only "animation scoped".
+     *
+     * However, in this demo we want to highlight lines which stay visible
+     * during each phase of collapse/expand animation.
+     * Therefore in this field we keep the copy of [itemAnimInfoMap] which
+     * is used in [onBindViewHolder] to highlight aforementioned lines.
+     *
+     * @see AnimInfo.collapsedStateVisibleFirstLine
+     * @see AnimInfo.collapsedStateVisibleLinesCount
+     */
+    private val persistentAnimInfoMap = TreeMap<Int, AnimInfo>()
 
     override var dataExpansionState: ExpansionState? = null
 
@@ -61,13 +93,59 @@ class DemoAdapter(
         recyclerView.findViewHolderForAdapterPosition(position)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val rootView = layoutInflater.inflate(R.layout.list_item, null) as CollapseAnimFrameLayout
+        val rootView = LayoutInflater.from(parent.context).inflate(R.layout.list_item, parent, false) as CollapseAnimFrameLayout
         return ViewHolder(rootView, rootView.findViewById(R.id.text_view))
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         onBindPostTransitionItemAnimInfo(holder, position)
-        holder.textView.text = data?.get(position)
+
+        val spannableString = SpannableString(data?.get(position))
+
+        val animInfo = persistentAnimInfoMap[position]
+        if (animInfo != null) {
+
+            // highlight animated lines
+            when (dataExpansionState) {
+                ExpansionState.EXPANDED -> {
+                    val layout = getOffscreenLayoutForText(spannableString)
+                    spannableString.setSpan(
+                        BackgroundColorSpan(highlightBackgroundColor),
+                        layout.getLineStart(animInfo.collapsedStateVisibleFirstLine),
+                        layout.getLineEnd(animInfo.collapsedStateVisibleFirstLine + animInfo.collapsedStateVisibleLinesCount - 1),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    spannableString.setSpan(
+                        ForegroundColorSpan(highlightForegroundColor),
+                        layout.getLineStart(animInfo.collapsedStateVisibleFirstLine),
+                        layout.getLineEnd(animInfo.collapsedStateVisibleFirstLine + animInfo.collapsedStateVisibleLinesCount - 1),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+                ExpansionState.COLLAPSED -> {
+                    spannableString.setSpan(BackgroundColorSpan(highlightBackgroundColor), 0, spannableString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    spannableString.setSpan(ForegroundColorSpan(highlightForegroundColor), 0, spannableString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+                else -> {
+                    error("Unhandled case [$dataExpansionState]")
+                }
+            }
+        }
+
+        holder.textView.text = spannableString
+    }
+
+    private fun getOffscreenLayoutForText(text: CharSequence): android.text.Layout {
+        // prepare "offscreen" view just for sake to perform measurements
+        if (!this::offscreenTextViewHolder.isInitialized) {
+            offscreenTextViewHolder = onCreateViewHolder(recyclerView, -1)
+        }
+        // bind data
+        offscreenTextViewHolder.textView.text = text
+        // measure (this will initialize 'layout' of the child)
+        recyclerView.layoutManager?.measureChild(offscreenTextViewHolder.itemView, 0, 0)
+        // set background span based on measurements
+        return offscreenTextViewHolder.textView.layout
     }
 
     override fun getItemCount(): Int {
@@ -84,12 +162,21 @@ class DemoAdapter(
     fun setData(
         data: List<String>,
         dataExpansionState: ExpansionState,
-        animInfoList: List<ItemAnimInfo>?
+        itemAnimInfoList: List<ItemAnimInfo>?
     ) {
         onPreData(dataExpansionState)
         this.data = data
-        setItemAnimInfoList(animInfoList)
+        setItemAnimInfoList(itemAnimInfoList)
         notifyAfterDataSet()
+    }
+
+    override fun setItemAnimInfoList(itemAnimInfoList: List<ItemAnimInfo>?) {
+        super.setItemAnimInfoList(itemAnimInfoList)
+
+        persistentAnimInfoMap.clear()
+        itemAnimInfoList?.forEach { itemAnimInfo ->
+            persistentAnimInfoMap[itemAnimInfo.itemIndexPostTransition] = itemAnimInfo.animInfo
+        }
     }
 
     open class ViewHolder(
