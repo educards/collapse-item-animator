@@ -18,10 +18,16 @@ import java.util.SortedMap
 interface CollapseAnimAdapter : CollapseItemAnimator.AnimStateListener {
 
     /**
-     * Animation details of animated items.
+     * Animation metadata of items to be animated by [CollapseItemAnimator].
+     *
+     * To save memory, this map is by design animation scoped - will be cleared
+     * immediately after [CollapseItemAnimator] ends it's job (see [onPostAnim] for details).
+     *
+     * Map structure:
      * * `key`: target position of item after transition (post-transition phase)
      *          regardless of the transition direction (expanded <-> collapsed)
      * * `value`: [ItemAnimInfo]
+     *
      * @see setItemAnimInfoList
      */
     val itemAnimInfoMap: SortedMap<Int, ItemAnimInfo>
