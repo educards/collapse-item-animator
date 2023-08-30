@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class CollapseItemAnimator(
     private val recyclerView: RecyclerView,
-    collapseAnimAdapter: CollapseAnimAdapter
+    private val collapseAnimAdapter: CollapseAnimAdapter
 ) : DefaultItemAnimator() {
 
     interface AnimStateListener {
@@ -75,7 +75,7 @@ class CollapseItemAnimator(
             if (viewHolder.isCustomAnimated()) {
                 return true
 
-            } else if (viewHolder.suppressNextAnimCycle) {
+            } else if (suppressAnimRequestedFor(viewHolder)) {
                 // 'suppressNextAnimCycle' is set by animator client prior to invoking 'notifyItemChanged'
                 // to tell this animator that it should suppress any animations on this view holder.
                 //
@@ -112,10 +112,23 @@ class CollapseItemAnimator(
         return super.canReuseUpdatedViewHolder(viewHolder)
     }
 
+    private fun suppressAnimRequestedFor(viewHolder: RecyclerView.ViewHolder) =
+        collapseAnimAdapter.suppressNextAnimCycleSet.contains(
+            viewHolder.bindingAdapterPosition
+        )
+
+    private fun resetSuppressAnimFlag(viewHolder: RecyclerView.ViewHolder) {
+        if (BuildConfig.DEBUG) Log.d(TAG, "resetSuppressAnimFlag [bindingAdapterPosition: ${viewHolder.bindingAdapterPosition}]")
+        val removed = collapseAnimAdapter.suppressNextAnimCycleSet.remove(
+            viewHolder.bindingAdapterPosition
+        )
+        assert(removed)
+    }
+
     override fun animateAdd(holder: RecyclerView.ViewHolder?): Boolean {
 
         // Did the client requested to suppress this animation?
-        return if (holder is CollapseAnimViewHolder && holder.suppressNextAnimCycle) {
+        return if (holder is CollapseAnimViewHolder && suppressAnimRequestedFor(holder)) {
             if (BuildConfig.DEBUG) Log.d(TAG, "animateAdd [" +
                     "holder.bindingAdapterPosition: ${holder.bindingAdapterPosition}, " +
                     "holder.hashCode: ${holder.hashCode()}, " +
@@ -130,7 +143,7 @@ class CollapseItemAnimator(
             }
 
             // reset flag
-            holder.suppressNextAnimCycle = false
+            resetSuppressAnimFlag(holder)
 
             true
 
@@ -151,7 +164,7 @@ class CollapseItemAnimator(
     ): Boolean {
 
         // Did the client request to suppress this particular animation?
-        if (newHolder is CollapseAnimViewHolder && newHolder.suppressNextAnimCycle) {
+        if (newHolder is CollapseAnimViewHolder && suppressAnimRequestedFor(newHolder)) {
             // If we are here, the state is following:
             // * newHolder == oldHolder (see canReuseUpdatedViewHolder())
             // * holder.suppressNextAnimCycle = true
@@ -164,7 +177,7 @@ class CollapseItemAnimator(
             // is about to be invoked, but no animation will occur, because
             // super.animateChange() can implicitly animate only 2 ViewHolder instances,
             // but in our case newHolder == oldHolder.
-            newHolder.suppressNextAnimCycle = false
+            resetSuppressAnimFlag(newHolder)
             if (BuildConfig.DEBUG) Log.d(TAG, "animateChange [" +
                     "holder.bindingAdapterPosition: ${newHolder.bindingAdapterPosition}, " +
                     "animType: suppressNextAnimCycle]")

@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import java.util.SortedMap
+import java.util.SortedSet
 
 /**
  * An interface implemented by [RecyclerView.Adapter] supporting the collapse animation.
@@ -46,6 +47,15 @@ interface CollapseAnimAdapter : CollapseItemAnimator.AnimStateListener {
     var previousItemCount: Int
 
     var streamingNotifyExecutor: StreamingNotifyExecutor
+
+
+    /**
+     * Integer added to this set serves as a request to omit/skip animation
+     * scheduled for `ViewHolder` bound to a given position.
+     *
+     * @see CollapseAnimAdapter.onPostAnim
+     */
+    val suppressNextAnimCycleSet: SortedSet<Int>
 
     /**
      * Invoked from `onBindViewHolder` to setup view (wrapped by [holder])
@@ -192,9 +202,7 @@ interface CollapseAnimAdapter : CollapseItemAnimator.AnimStateListener {
 
         if (animSequenceFinished) {
             val itemAnimInfo = viewHolder.itemAnimInfo
-            if (itemAnimInfo == null) {
-                error("'animInfo' expended for ViewHolder which just finished collapsed/expand animation")
-            }
+                ?: error("'animInfo' expended for ViewHolder which just finished collapsed/expand animation")
 
             val postTransitionIndex = itemAnimInfo.itemIndexPostTransition
 
@@ -228,18 +236,19 @@ interface CollapseAnimAdapter : CollapseItemAnimator.AnimStateListener {
                 // java.lang.IllegalStateException: Cannot call this method while RecyclerView is computing a layout or scrolling
                 // By the end of animation the scroll might be still in progress.
                 viewHolder.rootView.post {
-                    this as Adapter<*>
-                    viewHolder.suppressNextAnimCycle = true
-                    notifyItemChanged(postTransitionIndex)
+                    suppressNextAnimCycleAndNotify(postTransitionIndex)
                 }
             } else {
-                this as Adapter<*>
-                viewHolder.suppressNextAnimCycle = true
-                notifyItemChanged(postTransitionIndex)
+                suppressNextAnimCycleAndNotify(postTransitionIndex)
             }
 
         }
+    }
 
+    private fun suppressNextAnimCycleAndNotify(postTransitionIndex: Int) {
+        this as Adapter<*>
+        suppressNextAnimCycleSet.add(postTransitionIndex)
+        notifyItemChanged(postTransitionIndex)
     }
 
     companion object {

@@ -35,7 +35,9 @@ import com.educards.collapseitemanimator.CollapseAnimFrameLayout
 import com.educards.collapseitemanimator.CollapseAnimViewHolder
 import com.educards.collapseitemanimator.DefaultStreamingNotifyExecutor
 import com.educards.collapseitemanimator.StreamingNotifyExecutor
+import java.util.SortedSet
 import java.util.TreeMap
+import java.util.TreeSet
 
 class DemoAdapter(
 
@@ -88,6 +90,8 @@ class DemoAdapter(
     override var previousItemCount = -1
 
     override var streamingNotifyExecutor: StreamingNotifyExecutor = DefaultStreamingNotifyExecutor()
+
+    override val suppressNextAnimCycleSet: SortedSet<Int> = TreeSet()
 
     override fun findViewHolderForAdapterPosition(position: Int) =
         recyclerView.findViewHolderForAdapterPosition(position)
@@ -186,7 +190,6 @@ class DemoAdapter(
         CollapseAnimViewHolder {
         override var viewExpansionState: ExpansionState? = null
         override var itemAnimInfo: ItemAnimInfo? = null
-        override var suppressNextAnimCycle: Boolean = false
     }
 
 }
