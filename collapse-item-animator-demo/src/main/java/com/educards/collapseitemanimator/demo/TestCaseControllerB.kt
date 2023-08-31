@@ -52,7 +52,7 @@ class TestCaseControllerB : TestCaseController() {
     }
 
     override fun getItemAnimInfoList() = listOf(
-        ItemAnimTestInfo(14, 1, 10, 1)
+        ItemAnimTestInfo(14, 6, 10, 1)
     )
 
     override fun generateExpandedSampleData() = listOf(
@@ -85,6 +85,11 @@ class TestCaseControllerB : TestCaseController() {
     )
 
     override fun generateCollapsedSampleData() = listOf(
+        "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",
+        "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",
+        "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",
+        "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",
+        "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",
         "Sed eu neque arcu. Etiam eleifend dui augue, id tempus felis aliquam id.",
         "Item animated with CollapseItemAnimator.",
         "Nulla pellentesque lobortis eros, sed luctus magna convallis eu. Nulla a augue fermentum, lacinia dolor in, semper ligula.",

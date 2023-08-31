@@ -235,10 +235,14 @@ class CollapseItemAnimator(
             anim.setFloatValues(0f, 1f)
             anim.duration = changeDuration
 
-            var scrolledY = 0
-            val scrollOffsetFirstLineY =
-                rootView.y + deltaY +
-                        (if (expanding) rootViewAnimData.animBitmapCollapsedFirstLineY else 0f)
+            var alreadyScrolledY = 0
+            val yToFirstLine = rootViewAnimData.animBitmapCollapsedFirstLineY.let {
+                if (expanding) it else -it // This keeps animated/highlighted content fixed at Y
+                                           // to make the animation more pleasant and understandable.
+                                           // Note that Y will be fixed only if there is enough
+                                           // vertical space to scroll.
+            }
+            val scrollOffsetYToFirstLine = deltaY + yToFirstLine
 
             val animUpdateListener = ValueAnimator.AnimatorUpdateListener {
 
@@ -255,9 +259,9 @@ class CollapseItemAnimator(
                 rootView.invalidate() // redraw animBitmap
 
                 // scroll Y
-                val scrollYDelta = ((it.animatedFraction * scrollOffsetFirstLineY) - scrolledY).toInt()
+                val scrollYDelta = ((it.animatedFraction * scrollOffsetYToFirstLine) - alreadyScrolledY).toInt()
                 recyclerView.scrollBy(0, scrollYDelta)
-                scrolledY += scrollYDelta
+                alreadyScrolledY += scrollYDelta
             }
 
             val animListener = object : AnimatorListenerAdapter() {
