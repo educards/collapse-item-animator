@@ -184,6 +184,7 @@ class CollapseItemAnimator(
         }
 
         if (preInfo is CollapseAnimItemHolderInfo
+            && preInfo.isCustomAnimated()
             && postInfo is CollapseAnimItemHolderInfo
             && postInfo.isCustomAnimated())
         {
@@ -219,15 +220,13 @@ class CollapseItemAnimator(
             val deltaY = postInfo.top - preInfo.top - preResetTranslationY
             rootView.translationY = -deltaY
             rootViewAnimData.animBitmapPhase = preResetAnimBitmapPhase
-            if (expanding) {
-                rootViewAnimData.animBitmap = postInfo.animBitmap ?: error("'animBitmap' expected")
-                rootViewAnimData.animBitmapCollapsedFirstLineY = postInfo.animBitmapCollapsedFirstLineY ?: error("'animBitmapCollapsedFirstLineY' expected")
-                rootViewAnimData.animBitmapCollapsedHeight = postInfo.animBitmapCollapsedHeight ?: error("'animBitmapCollapsedHeight' expected")
-            } else {
-                rootViewAnimData.animBitmap = preInfo.animBitmap ?: error("'animBitmap' expected")
-                rootViewAnimData.animBitmapCollapsedFirstLineY = preInfo.animBitmapCollapsedFirstLineY ?: error("'animBitmapCollapsedFirstLineY' expected")
-                rootViewAnimData.animBitmapCollapsedHeight = preInfo.animBitmapCollapsedHeight ?: error("'animBitmapCollapsedHeight' expected")
-            }
+            val itemHolderInfo = if (expanding) postInfo else preInfo
+            rootViewAnimData.animBitmap = itemHolderInfo.animBitmap
+                ?: error("'animBitmap' expected [expanding: $expanding]")
+            rootViewAnimData.animBitmapCollapsedFirstLineY = itemHolderInfo.animBitmapCollapsedFirstLineY
+                ?: error("'animBitmapCollapsedFirstLineY' expected [expanding: $expanding]")
+            rootViewAnimData.animBitmapCollapsedHeight = itemHolderInfo.animBitmapCollapsedHeight
+                ?: error("'animBitmapCollapsedHeight' expected [expanding: $expanding]")
             rootView.invalidate() // redraw view with animBitmap which we've just set
 
             // prepare anim
