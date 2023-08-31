@@ -229,11 +229,12 @@ class CollapseItemAnimator(
                 ?: error("'animBitmapCollapsedHeight' expected [expanding: $expanding]")
             rootView.invalidate() // redraw view with animBitmap which we've just set
 
-            // prepare anim
+            // prepare animator
             val anim = CollapseExpandValueAnimator()
             anim.setFloatValues(0f, 1f)
             anim.duration = changeDuration
 
+            // prepare scrolling params
             var alreadyScrolledY = 0
             val yToFirstLine = rootViewAnimData.animBitmapCollapsedFirstLineY.let {
                 if (expanding) it else -it // This keeps animated/highlighted content fixed at Y
