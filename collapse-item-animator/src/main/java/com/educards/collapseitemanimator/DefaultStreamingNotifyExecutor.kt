@@ -31,7 +31,7 @@ open class DefaultStreamingNotifyExecutor: StreamingNotifyExecutor {
         if (BuildConfig.DEBUG) Log.d(TAG, "doNotify [previousItemCount: $previousItemCount, currentItemCount: $currentItemCount]")
 
         // TODO Describe the idea behind the algorithm
-        //      with 2 phases (scale, move).
+        //      with 2 phases (scale, move/shift).
         //      Prevents IndexOutOfBoundsException: Inconsistency detected. Invalid view holder adapter positionViewHolder
         //      (https://github.com/educards/collapse-item-animator/issues/6)
 

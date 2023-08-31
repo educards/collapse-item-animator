@@ -14,15 +14,21 @@ import java.util.SortedSet
  * @see onBindPreTransitionItemAnimInfo
  * @see onBindPostTransitionItemAnimInfo
  * @see onPreData
- * @see notifyAfterDataSet
+ * @see notifyToAnimate
  */
 interface CollapseAnimAdapter : CollapseItemAnimator.AnimStateListener {
 
     /**
      * Animation metadata of items to be animated by [CollapseItemAnimator].
      *
-     * To save memory, this map is by design animation scoped - will be cleared
-     * immediately after [CollapseItemAnimator] ends it's job (see [onPostAnim] for details).
+     * This map is by design *animation scoped* (map will be cleared
+     * immediately after [CollapseItemAnimator] ends it's job (see [onPostAnim] for details)).
+     * There are 2 reasons to make this data *animation scoped*:
+     * 1. To properly provide IDs of animated items during animation (during the phase
+     *   when data are being switched from collapsed to expanded and vice versa
+     *   (see [getItemId])) and afterwards to reset IDs once the animation is
+     *   finished to further properly handle ViewHolder any potential post-animation updates.
+     * 2. To save the memory.
      *
      * Map structure:
      * * `key`: target position of item after transition (post-transition phase)
@@ -160,7 +166,7 @@ interface CollapseAnimAdapter : CollapseItemAnimator.AnimStateListener {
         this.dataExpansionState = dataExpansionState
     }
 
-    fun notifyAfterDataSet() {
+    fun notifyToAnimate() {
         this as Adapter<*>
         checkAnimSetup()
         streamingNotifyExecutor.doNotify(this, itemAnimInfoMap, previousItemCount, itemCount)
