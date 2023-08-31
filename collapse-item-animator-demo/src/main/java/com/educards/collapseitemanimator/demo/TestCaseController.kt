@@ -16,6 +16,7 @@
 
 package com.educards.collapseitemanimator.demo
 
+import android.annotation.SuppressLint
 import android.view.View
 import com.educards.collapseitemanimator.AnimInfo
 import com.educards.collapseitemanimator.ExpansionState
@@ -43,7 +44,8 @@ abstract class TestCaseController {
     private fun getOppositeAnimDirection(animDirection: ExpansionState?) =
         animDirection?.getOpposite() ?: ExpansionState.EXPANDED
 
-    fun initOrSwitchAdapterData(adapter: DemoAdapter) {
+    @SuppressLint("NotifyDataSetChanged")
+    fun initOrSwitchAdapterData(init: Boolean, adapter: DemoAdapter) {
 
         // detect new state (switch)
         val nextDataExpansionState = getOppositeAnimDirection(previousAnimDirection)
@@ -71,7 +73,20 @@ abstract class TestCaseController {
             )
         }
 
-        adapter.setData(nextData, nextDataExpansionState, itemAnimInfoList)
+        if (init) {
+            adapter.setData(nextData, nextDataExpansionState,
+                // We are not performing an animation now
+                // (this is initialization phase of the data) ...
+                itemAnimInfoList = null)
+                // ... but we already want to highlight items
+                // which will be eventually expanded/collapsed:
+            adapter.setPersistentAnimInfoMap(itemAnimInfoList)
+
+        } else {
+            adapter.setData(nextData, nextDataExpansionState,
+                // Perform animation with the following animation metadata:
+                itemAnimInfoList = itemAnimInfoList)
+        }
     }
 
     abstract fun getItemAnimInfoList(): List<ItemAnimTestInfo>

@@ -67,12 +67,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun initAdapterData() {
         updateNotifyExecutor(adapter, testCaseController, binding.notifyExecutorProd.isChecked)
-        testCaseController.initOrSwitchAdapterData(adapter)
+        testCaseController.initOrSwitchAdapterData(true, adapter)
     }
 
     private fun initSwitchButton() {
         binding.switchButton.setOnClickListener {
-            testCaseController.initOrSwitchAdapterData(adapter)
+            testCaseController.initOrSwitchAdapterData(false, adapter)
             updateSwitchButtonText(testCaseController.getNextActionTitle())
         }
     }

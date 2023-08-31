@@ -16,12 +16,14 @@
 
 package com.educards.collapseitemanimator.demo
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
@@ -106,6 +108,10 @@ class DemoAdapter(
 
         val spannableString = SpannableString(data?.get(position))
 
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onBindViewHolder [position: $position, \"${data?.get(position)?.take(16)}\"]")
+        }
+
         val animInfo = persistentAnimInfoMap[position]
         if (animInfo != null) {
 
@@ -113,12 +119,14 @@ class DemoAdapter(
             when (dataExpansionState) {
                 ExpansionState.EXPANDED -> {
                     val layout = getOffscreenLayoutForText(spannableString)
+                    // background
                     spannableString.setSpan(
                         BackgroundColorSpan(highlightBackgroundColor),
                         layout.getLineStart(animInfo.collapsedStateVisibleFirstLine),
                         layout.getLineEnd(animInfo.collapsedStateVisibleFirstLine + animInfo.collapsedStateVisibleLinesCount - 1),
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
+                    // foreground
                     spannableString.setSpan(
                         ForegroundColorSpan(highlightForegroundColor),
                         layout.getLineStart(animInfo.collapsedStateVisibleFirstLine),
@@ -127,7 +135,9 @@ class DemoAdapter(
                     )
                 }
                 ExpansionState.COLLAPSED -> {
+                    // background
                     spannableString.setSpan(BackgroundColorSpan(highlightBackgroundColor), 0, spannableString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    // foreground
                     spannableString.setSpan(ForegroundColorSpan(highlightForegroundColor), 0, spannableString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
                 else -> {
@@ -163,20 +173,36 @@ class DemoAdapter(
     override fun getItemId(position: Int) =
         super<CollapseAnimAdapter>.getItemId(position)
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setData(
         data: List<String>,
         dataExpansionState: ExpansionState,
         itemAnimInfoList: List<ItemAnimInfo>?
     ) {
+        // Raw data
         onPreData(dataExpansionState)
         this.data = data
+
+        // Animation metadata
         setItemAnimInfoList(itemAnimInfoList)
-        notifyAfterDataSet()
+
+        // Notify
+        if (itemAnimInfoList.isNullOrEmpty()) {
+            notifyDataSetChanged()
+        } else {
+            notifyToAnimate()
+        }
     }
 
     override fun setItemAnimInfoList(itemAnimInfoList: List<ItemAnimInfo>?) {
         super.setItemAnimInfoList(itemAnimInfoList)
+        setPersistentAnimInfoMap(itemAnimInfoList)
+    }
 
+    /**
+     * @see persistentAnimInfoMap
+     */
+    fun setPersistentAnimInfoMap(itemAnimInfoList: List<ItemAnimInfo>?) {
         persistentAnimInfoMap.clear()
         itemAnimInfoList?.forEach { itemAnimInfo ->
             persistentAnimInfoMap[itemAnimInfo.itemIndexPostTransition] = itemAnimInfo.animInfo
@@ -190,6 +216,10 @@ class DemoAdapter(
         CollapseAnimViewHolder {
         override var viewExpansionState: ExpansionState? = null
         override var itemAnimInfo: ItemAnimInfo? = null
+    }
+
+    companion object {
+        private const val TAG = "DemoAdapter"
     }
 
 }
