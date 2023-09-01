@@ -183,11 +183,17 @@ class CollapseItemAnimator(
                     "animType: suppressNextAnimCycle]")
         }
 
-        if (preInfo is CollapseAnimItemHolderInfo
+        if (
+
+            // Does this holder support collapse/expand animation?
+            preInfo is CollapseAnimItemHolderInfo
             && preInfo.isCustomAnimated()
             && postInfo is CollapseAnimItemHolderInfo
-            && postInfo.isCustomAnimated())
-        {
+            && postInfo.isCustomAnimated()
+
+            // Did the expansion state of this holder actually change?
+            && preInfo.isExpanded() != postInfo.isExpanded()
+        ) {
 
             val expanding = postInfo.isExpanded()
             if (BuildConfig.DEBUG) Log.d(TAG, "animateChange [animType: ${if (expanding) "expand" else "collapse"}, holder.bindingAdapterPosition: ${newHolder.bindingAdapterPosition}]")
@@ -222,11 +228,11 @@ class CollapseItemAnimator(
             rootViewAnimData.animBitmapPhase = preResetAnimBitmapPhase
             val itemHolderInfo = if (expanding) postInfo else preInfo
             rootViewAnimData.animBitmap = itemHolderInfo.animBitmap
-                ?: error("'animBitmap' expected [expanding: $expanding]")
+                ?: error("'animBitmap' expected [holder.hashCode: ${holder.hashCode()}, expanding: $expanding]")
             rootViewAnimData.animBitmapCollapsedFirstLineY = itemHolderInfo.animBitmapCollapsedFirstLineY
-                ?: error("'animBitmapCollapsedFirstLineY' expected [expanding: $expanding]")
+                ?: error("'animBitmapCollapsedFirstLineY' expected [holder.hashCode: ${holder.hashCode()}, expanding: $expanding]")
             rootViewAnimData.animBitmapCollapsedHeight = itemHolderInfo.animBitmapCollapsedHeight
-                ?: error("'animBitmapCollapsedHeight' expected [expanding: $expanding]")
+                ?: error("'animBitmapCollapsedHeight' expected [holder.hashCode: ${holder.hashCode()}, expanding: $expanding]")
             rootView.invalidate() // redraw view with animBitmap which we've just set
 
             // prepare animator
