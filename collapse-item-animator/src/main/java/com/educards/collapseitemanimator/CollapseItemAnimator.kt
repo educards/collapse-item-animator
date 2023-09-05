@@ -133,18 +133,8 @@ class CollapseItemAnimator(
                     "holder.bindingAdapterPosition: ${holder.bindingAdapterPosition}, " +
                     "holder.hashCode: ${holder.hashCode()}, " +
                     "animType: suppressNextAnimCycle]")
-
-            dispatchAddStarting(holder)
-            // suppress the animation by "pretending"
-            // it is already done
-            dispatchAddFinished(holder)
-            if (animatorMap.isEmpty()) {
-                dispatchAnimationsFinished()
-            }
-
-            // reset flag
+            animateVoid(holder)
             resetSuppressAnimFlag(holder)
-
             true
 
         } else {
@@ -196,7 +186,7 @@ class CollapseItemAnimator(
         ) {
 
             val expanding = postInfo.isExpanded()
-            if (BuildConfig.DEBUG) Log.d(TAG, "animateChange [animType: ${if (expanding) "expand" else "collapse"}, holder.bindingAdapterPosition: ${newHolder.bindingAdapterPosition}]")
+            if (BuildConfig.DEBUG) debugLogAnimateChange(newHolder, if (expanding) "expand" else "collapse")
 
             // Data discrepancy fail-fast checks
             if (newHolder != oldHolder) {
@@ -319,14 +309,30 @@ class CollapseItemAnimator(
 
             return true
 
+        } else if (preInfo is CollapseAnimItemHolderInfo) {
+            // Current state is not sound to perform collapse-expand animation,
+            // but `ViewHolder` supports it. In such case do nothing.
+            // This case occurs (at time of writing this code) in Android 13 as a result
+            // of invoking `recyclerView.scrollBy(...)` probably because scroll is
+            // not natively supported while animating the view, however we need the
+            // scroll to keep the highlighted lines centered.
+            if (BuildConfig.DEBUG) debugLogAnimateChange(newHolder, "suppressed")
+            animateVoid(newHolder)
+            return true
+
         } else {
-            if (BuildConfig.DEBUG) Log.d(
-                TAG, "animateChange [" +
-                        "animType: default (super.animateChange()), " +
-                        "holder.bindingAdapterPosition: ${newHolder.bindingAdapterPosition}]"
-            )
+            if (BuildConfig.DEBUG) debugLogAnimateChange(newHolder, "default (super.animateChange())")
             return super.animateChange(oldHolder, newHolder, preInfo, postInfo)
+
         }
+    }
+
+    private fun debugLogAnimateChange(holder: RecyclerView.ViewHolder, animType: String) {
+        Log.d(
+            TAG, "animateChange [" +
+                    "animType: $animType, " +
+                    "holder.bindingAdapterPosition: ${holder.bindingAdapterPosition}]"
+        )
     }
 
     override fun endAnimation(item: RecyclerView.ViewHolder) {
@@ -338,6 +344,18 @@ class CollapseItemAnimator(
         super.endAnimations()
         animatorMap.forEach { entry ->
             entry.value.animator.cancel()
+        }
+    }
+
+    /**
+     * Marks [viewHolder] as "animated", but actually does not perform any animation.
+     */
+    private fun animateVoid(viewHolder: RecyclerView.ViewHolder) {
+        // suppress the animation by "pretending" it is already done
+        dispatchAddStarting(viewHolder)
+        dispatchAddFinished(viewHolder)
+        if (animatorMap.isEmpty()) {
+            dispatchAnimationsFinished()
         }
     }
 
